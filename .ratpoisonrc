@@ -1,0 +1,12 @@
+startup_message off
+set bargravity se
+
+set padding 0 20 0 0
+set font "Terminus-12"
+
+exec rpws -i
+exec /usr/bin/rpws init 4 -k
+
+bind e exec emacs
+bind f exec firefox
+bind v exec vlc

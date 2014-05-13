@@ -1,0 +1,16 @@
+[user]
+	name = Antoine Busque
+	email = antoinebusque@gmail.com
+[color]
+	ui = auto
+	ui = true
+[push]
+	default = current
+[alias]
+	ci = commit
+        cam = commit -am
+        co = checkout
+        st = status
+        lpg = log --pretty=oneline --graph
+        discard = stash --keep-index -u
+	cim = commit -m
