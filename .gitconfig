@@ -12,5 +12,7 @@
         co = checkout
         st = status
         lpg = log --pretty=oneline --graph
+        lppg = log --graph --pretty=format:'%Cred%h%Creset %an: %s - %Creset %C(yellow)%d%Creset %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
         discard = stash --keep-index -u
 	cim = commit -m
+        k = !gitk
