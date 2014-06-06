@@ -10,3 +10,8 @@ exec /usr/bin/rpws init 4 -k
 bind e exec emacs
 bind f exec firefox
 bind v exec vlc
+bind o nextscreen
+
+# evil vi bindings
+bind l focusright
+bind h focusleft
