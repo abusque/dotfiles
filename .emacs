@@ -34,6 +34,8 @@
 
 (show-paren-mode t)
 
+(setq-default show-trailing-whitespace t)
+
 ;;;Shortcuts
 ;;general
 (global-set-key (kbd "C-c o") 'bury-buffer)
@@ -49,10 +51,8 @@
 (require 'scala-mode2)
 
 ;;C mode
-(setq c-default-style "bsd")
-(setq c-basic-offset 4)
-;Load .h in C++ mode by default
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+(setq c-default-style "linux")
+(setq c-basic-offset 8)
 
 ;; ;;Haskell mode
 ;; (load "/usr/share/emacs/site-lisp/haskell-mode/haskell-site-file")
@@ -70,17 +70,22 @@
 (ido-everywhere t)
 (setq ido-enable-flex-matching t)
 
-;; ;;;ERC
-;; (setq erc-server "chat.freenode.net" 
-;;       erc-port 6667 
-;;       erc-nick "abusque"
-;;       erc-user-full-name user-full-name
-;;       erc-email-userid "antoinebusque@gmail.com"
-;;       erc-prompt-for-password nil)
+;;;ERC
+(setq erc-server "irc.oftc.net" 
+      erc-port 6667 
+      erc-nick "a-busque"
+      erc-prompt-for-password nil)
 
 ;;;Latex
 (load "auctex.el" nil t t)
 (load "preview-latex.el" nil t t)
+
+;;;gnuplot
+(load "gnuplot.el" nil t t)
+(autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
+(autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot mode" t)
+(setq auto-mode-alist (append '(("\\.gp$" . gnuplot-mode)) auto-mode-alist))
+
 
 ;;;abbrev-mode
 (setq-default abbrev-mode t)
@@ -113,3 +118,4 @@
   (let ((inhibit-read-only t))
         ; simply delete the region
         (delete-region (point-min) (point-max))))
+(put 'upcase-region 'disabled nil)
