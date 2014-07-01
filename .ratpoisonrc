@@ -9,8 +9,10 @@ exec /usr/bin/rpws init 4 -k
 
 bind e exec emacs
 bind f exec firefox
+bind F exec chromium --allow-file-access-from-files
 bind v exec vlc
 bind o nextscreen
+bind a exec slock # because who uses C-t a to show time anyway
 
 # evil vi bindings
 bind l focusright
