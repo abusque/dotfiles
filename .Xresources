@@ -1,3 +1,7 @@
 xterm*background: 	#000000
 xterm*foreground: 	#FFFFFF
 xterm*faceName:		Terminus:style=Regular:size=10
+xterm*charClass:        33:48,36-47:48,58-59:48,61:48,63-64:48,95:48,126:48
+xterm*metasSendsExcape: true
+xterm*on3Clicks:        regex ([[:alpha:]]+://)?([[:alnum:]!#+,./=?@_~-]|(%[[:xdigit:]][[:xdigit:]]))+
+*VT100*translations:    #override Alt <Btn1Up>: exec-formatted("chromium '%t'", PRIMARY)
