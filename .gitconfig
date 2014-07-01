@@ -16,3 +16,10 @@
         discard = stash --keep-index -u
 	cim = commit -m
         k = !gitk
+[sendemail]
+	smtpencryption = tls
+	smtpserver = mail.efficios.com
+	smtpuser = antoine.busque@efficios.com
+	smtpserverport = 587
+	smtppass = <PASS>
+	suppresscc = self
