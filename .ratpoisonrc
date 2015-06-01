@@ -4,16 +4,18 @@ set bargravity se
 set padding 0 20 0 0
 set font "Terminus-12"
 
-exec rpws -i
 exec /usr/bin/rpws init 4 -k
 
+bind c exec urxvt
 bind e exec emacs
-bind f exec firefox
-bind F exec chromium --allow-file-access-from-files
+bind f exec chromium
 bind v exec vlc
 bind o nextscreen
-bind a exec slock # because who uses C-t a to show time anyway
+# because who uses C-t a to show time anyway
+bind a exec slock
 
 # evil vi bindings
 bind l focusright
 bind h focusleft
+
+bind m exec togglexkbmap
