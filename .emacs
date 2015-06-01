@@ -1,24 +1,31 @@
-;;;Environment
+;;; Environment
 (set-language-environment "UTF-8")
 
 (setq custom-file "~/.emacs-custom.el")
 (load custom-file)
 
-(add-to-list 'load-path "/home/abusque/.emacs.d/")
+(add-to-list 'load-path "/home/abusque/.emacs.d/autopair/")
 
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
-;;indent with spaces
+;; Confirm before exiting
+(setq confirm-kill-emacs 'y-or-n-p)
+
+;; indent with spaces
 (setq-default indent-tabs-mode nil)
 
-;;autopair
+;; autopair
 (require 'autopair)
 (autopair-global-mode)
 
-;;;Display
+;; ag
+(setq ag-highlight-search t)
+(setq ag-reuse-window t)
+
+;;; Display
 (setq inhibit-splash-screen t
       initial-scratch-message nil)
 
@@ -36,81 +43,64 @@
 
 (setq-default show-trailing-whitespace t)
 
-;;;Shortcuts
-;;general
+;;; Shortcuts
+;; general
 (global-set-key (kbd "C-c o") 'bury-buffer)
 (global-set-key (kbd "C-c k") 'kill-this-buffer)
 (global-set-key (kbd "C-c c") 'compile)
 (global-set-key (kbd "C-c g") 'gdb)
 (global-set-key (kbd "C-c s") 'eshell)
 (global-set-key (kbd "C-c i") 'erc)
+(global-set-key (kbd "C-c a") 'ag)
 
-;;;Programming
+;;; Programming
 
-;; jade-mode
-(require 'sws-mode)
-(require 'jade-mode)
-(add-to-list 'auto-mode-alist '("\\.styl$" . sws-mode))
-(add-to-list 'auto-mode-alist '("\\.jade$" . jade-mode))
+;; web-mode
 
-;;Scala mode
-(require 'scala-mode2)
+(require 'web-mode)
+(setq web-mode-engines-alist '(("underscorejs" . "\\.template.html\\'")))
 
-;;C mode
+;; C mode
+(add-hook 'c-mode-common-hook '(lambda () (setq indent-tabs-mode t)))
 (setq c-default-style "linux")
 (setq c-basic-offset 8)
 
-;; ;;Haskell mode
-;; (load "/usr/share/emacs/site-lisp/haskell-mode/haskell-site-file")
-;; (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-;; (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
-;; (add-hook 'haskell-mode-hook 'font-lock-mode)
-
-;;CSharp mode
-(autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
-(setq auto-mode-alist
-      (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
-
-;;;Ido
+;;; Ido
 (ido-mode t)
 (ido-everywhere t)
 (setq ido-enable-flex-matching t)
 
-;;;ERC
-(setq erc-server "irc.oftc.net" 
-      erc-port 6667 
-      erc-nick "a-busque"
-      erc-prompt-for-password nil)
-
-;;;Latex
+;;; Latex
 (load "auctex.el" nil t t)
 (load "preview-latex.el" nil t t)
 
-;;;gnuplot
-(load "gnuplot.el" nil t t)
-(autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
-(autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot mode" t)
-(setq auto-mode-alist (append '(("\\.gp$" . gnuplot-mode)) auto-mode-alist))
-
-
-;;;abbrev-mode
+;;; abbrev-mode
 (setq-default abbrev-mode t)
 (quietly-read-abbrev-file abbrev-file-name)
 (setq save-abbrevs t)
 
-;;;skeletons
-    (define-skeleton latexfr-skeleton
-      "Inserts a Latex skeleton for utf8 encoded french documents"
-      "Enter document class (default article):"
-      "\\documentclass{" str | "article" "}\n\n"
-      "\\usepackage{french}\n"
-      "\\usepackage[utf8]{inputenc}\n"
-      "\\usepackage[T1]{fontenc}\n\n"
-      "\\begin{document}\n\n"
-      "" _ "\n\n"
-      "\\end{document}\n")
+;;; skeletons
+(define-skeleton latexfr-skeleton
+  "Inserts a Latex skeleton for utf8 encoded french documents"
+  "Enter document class (default article):"
+  "\\documentclass{" str | "article" "}\n\n"
+  "\\usepackage{french}\n"
+  "\\usepackage[utf8]{inputenc}\n"
+  "\\usepackage[T1]{fontenc}\n\n"
+  "\\begin{document}\n\n"
+  "" _ "\n\n"
+  "\\end{document}\n")
 
-;;;Others
+;;; Backup and temp files
+;; Place backups/auto-saves in
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+;; Disable file locks
+(setq create-lockfiles nil)
+
+;;; Others
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (auto-compression-mode 1)
@@ -124,4 +114,3 @@
   (let ((inhibit-read-only t))
         ; simply delete the region
         (delete-region (point-min) (point-max))))
-(put 'upcase-region 'disabled nil)
