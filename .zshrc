@@ -7,14 +7,31 @@ unsetopt appendhistory extendedglob notify
 bindkey -e
 # End of lines configured by zsh-newuser-install
 # The following lines were added by compinstall
-zstyle :compinstall filename '/home/abusque/.zshrc'
-
-fpath=(~/.zsh/completion $fpath)
-autoload -Uz compinit
-compinit
 autoload -U promptinit
 promptinit
 # End of lines added by compinstall
+
+# custom completion
+fpath=(~/.zsh/completion $fpath)
+autoload -Uz compinit
+compinit
+
+# some nice completion styles
+zstyle ':completion:*' menu select=2
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*::::' completer _expand _complete _ignored _approximate
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*:descriptions' format $'\e[01;33m-- %d --\e[0m'
+zstyle ':completion:*:messages' format $'\e[31m%d\e[0m'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:manuals' separate-sections true
+zstyle ':completion:*:processes' command 'ps -au$USER'
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:kill:*' force-list always
+zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#)*=29=34"
+zstyle ':completion:*:*:killall:*' menu yes select
+zstyle ':completion:*:killall:*' force-list always
+zstyle ':completion:*:(options|commands)' list-colors '=(#b)*(-- *)=0=36'
 
 prompt walters
 export EDITOR=emacs

@@ -1,0 +1,1411 @@
+#compdef lttng
+#
+# Completion script for the lttng command (see <http://lttng.org>).
+# Supports lttng v2.5, v2.6, v2.7, and v2.8.
+#
+# Copyright (c) 2015 Philippe Proulx <eepp.ca>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+_lttng() {
+  local context state state_descr line curcontext="$curcontext"
+  local ret=1
+  typeset -A opt_args
+
+  # 1 if XML MI is supported else 0
+  _mi_xml_supported() {
+    # lttng v2.5 and before do not support XML MI
+    if (( $minor_version < 6 )); then
+      return 1
+    fi
+
+    # xmllint is required to parse the XML output
+    if (( ! ${+commands[xmllint]} )); then
+      return 1
+    fi
+  }
+
+  # check XML MI support; message if not supported
+  _check_mi_support() {
+    if _mi_xml_supported; then
+      return 0
+    fi
+
+    _message 'XML MI (lttng v2.6+) and xmllint are required for this completion'
+    return 1
+  }
+
+  # sessions XML
+  _sessions_xml() {
+    lttng --mi xml list 2>/dev/null
+  }
+
+  # single session XML
+  _session_xml() {
+    lttng --mi xml list "$1" 2>/dev/null
+  }
+
+  # available events XML for a given domain option
+  _available_events_xml() {
+    if (( $2 )); then
+      lttng --mi xml list -k --syscall 2>/dev/null
+    else
+      lttng --mi xml list "$1" 2>/dev/null
+    fi
+  }
+
+  # sessions count from sessions XML
+  _sessions_count_from_xml() {
+    local sessions_xml="$1"
+
+    xmllint --xpath 'count(//session)' - <<< "$sessions_xml" 2>/dev/null
+  }
+
+  # session at given index from sessions XML
+  _session_at_from_xml() {
+    local sessions_xml="$1"
+
+    xmllint --xpath "//session[$2]" - <<< "$sessions_xml" 2>/dev/null
+  }
+
+  # immediate property from XML
+  _immediate_prop_from_xml() {
+    local node_xml="$1" node="$2" prop="$3"
+
+    xmllint --xpath "/$node/$prop/text()" - <<< "$node_xml" 2>/dev/null
+  }
+
+  # session name from XML
+  _name_from_xml() {
+    _immediate_prop_from_xml "$1" "$2" name
+  }
+
+  # session status from XML
+  _status_from_xml() {
+    _immediate_prop_from_xml "$1" "$2" enabled
+  }
+
+  # channels count from session XML for a given domain
+  _channels_count_from_xml() {
+    local session_xml="$1" domain="$2"
+
+    xmllint --xpath "count(//domain[contains(type/text(), \"$domain\")]//channel)" \
+        - <<< "$session_xml" 2> /dev/null
+  }
+
+  # channel at given index from session XML for a given domain
+  _channel_at_from_xml() {
+    local session_xml="$1" domain="$2" index="$3"
+
+    xmllint --xpath "//domain[contains(type/text(), \"$domain\")]//channel[$index]" \
+        - <<< "$session_xml" 2> /dev/null
+  }
+
+  # domain with given name from session XML
+  _domain_with_name_from_xml() {
+    local session_xml="$1" domain="$2"
+
+    xmllint --xpath "//domain[contains(type/text(), \"$domain\")]" \
+        - <<< "$session_xml" 2> /dev/null
+  }
+
+  # channel with given name from session XML for a given domain
+  _channel_with_name_from_xml() {
+    local session_xml="$1" domain="$2" channel="$3"
+
+    xmllint --xpath "//domain[contains(type/text(), \"$domain\")]//channel[contains(name/text(), \"$channel\")]" \
+        - <<< "$session_xml" 2> /dev/null
+  }
+
+  # events count from XML
+  _events_count_from_xml() {
+    local node_xml="$1"
+
+    xmllint --xpath "count(//events//event)" - <<< "$node_xml" 2> /dev/null
+  }
+
+  # event at given index from XML
+  _event_at_from_xml() {
+    local node_xml="$1" index="$2"
+
+    xmllint --xpath "//events/event[$index]" - <<< "$node_xml" 2> /dev/null
+  }
+
+  # list available events from chosen domain
+  _list_available_events() {
+    # check MI support
+    _check_mi_support || return 1
+
+    # make sure we're not enabling probe/function
+    if (( ${+opt_args[--probe]} || ${+opt_args[--function]} )); then
+      return 1
+    fi
+
+    # get session name
+    session="$(_session_name_from_opts)"
+
+    # get domain
+    local domain="$(_domain_from_opts)"
+
+    if [[ $domain = x ]]; then
+      _message 'no domain chosen'
+      return 1
+    fi
+
+    # get channel
+    local channel=''
+
+    if [[ $domain = k || $domain = u ]]; then
+      # agent domains do not have associated channel
+      channel="$(_channel_name_from_opts)"
+    fi
+
+    local -a events
+
+    # get already disabled events first
+    if [[ -n $session ]]; then
+      _append_sdc_events "$session" "$domain" "$channel" 'false'
+    fi
+
+    # get available events
+    local list_syscalls=0
+
+    if (( ${+opt_args[--syscall]} )); then
+      list_syscalls=1
+    fi
+
+    local available_events_xml="$(_available_events_xml -$domain $list_syscalls)"
+
+    if (( $? != 0 )); then
+      _message "cannot get available events for domain -$domain"
+      return 1
+    fi
+
+    # count events
+    local events_count="$(_events_count_from_xml "$available_events_xml")"
+
+    if (( $events_count > 0 )); then
+      # append one event at a time
+      for i ({1..$events_count}); do
+        local event_xml="$(_event_at_from_xml "$available_events_xml" $i)"
+
+        if (( $? != 0 )); then
+          continue
+        fi
+
+        local event="$(_name_from_xml "$event_xml" event)"
+
+        if (( $? != 0 )); then
+          continue
+        fi
+
+        events+=("$event")
+      done
+    fi
+
+    if (( ${#events} == 0 )); then
+      _message "no available events for chosen domain"
+      return 1
+    fi
+
+    _sequence compadd "$@" -a - events
+  }
+
+  # domain to XML name
+  _domain_to_xml_name() {
+    local domain="$1" domain_xml='x'
+
+    case $domain in
+      k) domain_xml='KERNEL';;
+      u) domain_xml='UST';;
+      j) domain_xml='JUL';;
+      l) domain_xml='LOG4J';;
+      p) domain_xml='PYTHON';;
+    esac
+
+    echo -n "$domain_xml"
+  }
+
+  # appends avaiable channels for a given session, domain name (k or u),
+  # and status (all, false, true)
+  _append_sd_channels() {
+    local session="$1" domain="$2" wanted_status="$3"
+
+    local domain_xml="$(_domain_to_xml_name "$domain")"
+
+    if [[ $domain_xml = x ]]; then
+      return
+    fi
+
+    # session XML output
+    local session_xml="$(_session_xml "$session")"
+
+    if (( $? != 0 )); then
+      return
+    fi
+
+    # count channels in given domain
+    local channels_count="$(_channels_count_from_xml "$session_xml" "$domain_xml")"
+
+    if (( $channels_count == 0 )); then
+      return
+    fi
+
+    # append one channel at a time
+    for i ({1..$channels_count}); do
+      local channel_xml="$(_channel_at_from_xml "$session_xml" "$domain_xml" "$i")"
+
+      if (( $? != 0 )); then
+        continue
+      fi
+
+      local channel_name="$(_name_from_xml "$channel_xml" channel)"
+
+      if (( $? != 0 )); then
+        continue
+      fi
+
+      if [[ $wanted_status != 'all' ]]; then
+        local channel_status="$(_status_from_xml "$channel_xml" channel)"
+
+        if (( $? != 0 )); then
+          continue
+        fi
+
+        if [[ $channel_status != $wanted_status ]]; then
+          continue
+        fi
+      fi
+
+      channels+=("$channel_name")
+    done
+  }
+
+  # appends avaiable events for a given session, domain name
+  # (k, u, j, l, or p), channel, and status (all, false, true)
+  _append_sdc_events() {
+    local session="$1" domain="$2" channel="$3" wanted_status="$4"
+
+    local domain_xml="$(_domain_to_xml_name "$domain")"
+
+    if [[ $domain_xml = x ]]; then
+      return
+    fi
+
+    # session XML output
+    local session_xml="$(_session_xml "$session")"
+
+    if (( $? != 0 )); then
+      return
+    fi
+
+    # get channel or domain
+    local events_container_xml
+
+    if [[ -z $channel ]]; then
+      # no channel, get domain
+      events_container_xml="$(_domain_with_name_from_xml "$session_xml" "$domain_xml")"
+    else
+      events_container_xml="$(_channel_with_name_from_xml "$session_xml" "$domain_xml" "$channel")"
+    fi
+
+    if (( $? != 0 )); then
+      return
+    fi
+
+    # count events
+    local events_count="$(_events_count_from_xml "$events_container_xml")"
+
+    if (( $events_count == 0 )); then
+      return
+    fi
+
+    # append one event at a time
+    for i ({1..$events_count}); do
+      local event_xml="$(_event_at_from_xml "$events_container_xml" $i)"
+
+      if (( $? != 0 )); then
+        continue
+      fi
+
+      local event="$(_name_from_xml "$event_xml" event)"
+
+      if (( $? != 0 )); then
+        continue
+      fi
+
+      if [[ $wanted_status != 'all' ]]; then
+        local event_status="$(_status_from_xml "$event_xml" event)"
+
+        if (( $? != 0 )); then
+          continue
+        fi
+
+        if [[ $event_status != $wanted_status ]]; then
+          continue
+        fi
+      fi
+
+      events+=("$event")
+    done
+  }
+
+  # current session name if any
+  _current_session_name() {
+    local lttngrc=~"/.lttngrc"
+
+    if [[ -f $lttngrc ]]; then
+      cut -f 2 -d = "$lttngrc"
+    fi
+
+    return 1
+  }
+
+  # chosen channel name (-c, --channel)
+  _channel_name_from_opts() {
+    local channel=''
+
+    if [[ -n ${opt_args[-c]} ]]; then
+      channel="${opt_args[-c]}"
+    elif [[ -n ${opt_args[--channel]} ]]; then
+      channel="${opt_args[--channel]}"
+    else
+      # default to "channel0", the default channel name
+      channel='channel0'
+    fi
+
+    echo -n "$channel"
+  }
+
+  # chosen domain (x means invalid)
+  _domain_from_opts() {
+    local domain='x'
+
+    if (( ${+opt_args[-k]} || ${+opt_args[--kernel]} )); then
+      domain=k
+    elif (( ${+opt_args[-u]} || ${+opt_args[--userspace]} )); then
+      domain=u
+    elif (( ${+opt_args[-j]} || ${+opt_args[--jul]} )); then
+      domain=j
+    elif (( ${+opt_args[-l]} || ${+opt_args[--log4j]} )); then
+      domain=l
+    elif (( ${+opt_args[-p]} || ${+opt_args[--python]} )); then
+      domain=p
+    fi
+
+    echo -n "$domain"
+  }
+
+  # chosen session name (current session name, overridden by -s, --session)
+  _session_name_from_opts() {
+    local session=''
+
+    if [[ -n ${opt_args[-s]} ]]; then
+      session="${opt_args[-s]}"
+    elif [[ -n ${opt_args[--session]} ]]; then
+      session="${opt_args[--session]}"
+    else
+      session="$(_current_session_name)"
+
+      if [[ -z $session ]]; then
+        return 1
+      fi
+    fi
+
+    echo -n "$session"
+  }
+
+  # list available sessions with given status (true, false, or all)
+  _list_sessions_with_status() {
+    local ignore_current=0 cur_session
+    local wanted_status="$1"
+
+    # check MI support
+    _check_mi_support || return 1
+
+    # ignore current session?
+    if (( $# > 1 )); then
+      if (( $2 )); then
+        ignore_current=1
+        cur_session="$(_current_session_name)"
+      fi
+    fi
+
+    # sessions XML output
+    local sessions_xml="$(_sessions_xml)"
+
+    if (( $? != 0 )); then
+      _message 'cannot get sessions in XML'
+      return 1
+    fi
+
+    # count sessions
+    local sessions_count="$(_sessions_count_from_xml "$sessions_xml")"
+
+    if (( $sessions_count == 0 )); then
+      _message 'no tracing sessions found'
+      return 1
+    fi
+
+    # append one session at a time
+    local -a sessions
+
+    for i ({1..$sessions_count}); do
+      local session_xml="$(_session_at_from_xml "$sessions_xml" $i)"
+
+      if (( $? != 0 )); then
+        continue
+      fi
+
+      local session="$(_name_from_xml "$session_xml" session)"
+
+      if (( $? != 0 )); then
+        continue
+      fi
+
+      if (( $ignore_current )) then;
+        if [[ $session = $cur_session ]]; then
+          continue
+        fi
+      fi
+
+      if [[ $wanted_status != 'all' ]]; then
+        local session_status="$(_status_from_xml "$session_xml" session)"
+
+        if (( $? != 0 )); then
+          continue
+        fi
+
+        if [[ $session_status != $wanted_status ]]; then
+          continue
+        fi
+      fi
+
+      sessions+=("$session")
+    done
+
+    # adjective
+    local adjective
+
+    case $wanted_status in
+      all) adjective='available';;
+      true) adjective='active';;
+      false) adjective='inactive';;
+    esac
+
+    if (( ${#sessions} == 0 )); then
+      _message "no $adjective tracing sessions found"
+      return 1
+    fi
+
+    local expl
+    _description values expl "$adjective tracing session"
+    compadd "$expl[@]" -a - sessions
+  }
+
+  # list channels of a given session (-s, --session) for the given
+  # domains (-k, --kernel, -u, --userspace) for the given status
+  # (all, true, false)
+  _list_sd_channels_with_status() {
+    local wanted_status="$1"
+
+    # check MI support
+    _check_mi_support || return 1
+
+    echo bateau > /tmp/debug
+
+    local csv=0
+
+    if (( $# > 1 )); then
+      if (( $2 )); then
+        csv=1
+      fi
+    fi
+
+    # make sure we have a session name
+    session="$(_session_name_from_opts)"
+
+    if [[ -z $session ]]; then
+      _message 'no session chosen'
+      return 1
+    fi
+
+    # get domain
+    local domain="$(_domain_from_opts)"
+
+    if [[ $domain = x ]]; then
+      _message 'no domain chosen'
+      return 1
+    fi
+
+    # check for running root session daemon before listing
+    # kernel channels
+    if [[ $domain = k ]] && (( ! $root_sessiond_running )); then
+      _message 'root session daemon is not running'
+      return 1
+    fi
+
+    local -a channels
+    _append_sd_channels "$session" "$domain" "$wanted_status"
+
+    # adjective
+    local adjective
+
+    case $wanted_status in
+      all) adjective='available';;
+      true) adjective='enabled';;
+      false) adjective='disabled';;
+    esac
+
+    if (( ${#channels} == 0 )); then
+      _message "no $adjective channels found for chosen session/domain"
+      return 1
+    fi
+
+    local expl
+    local descr="$adjective channel for chosen session/domain"
+    _description values expl "$descr"
+
+    if (( $csv )); then
+      _sequence compadd "$expl[@]" -a - channels
+    else
+      compadd "$expl[@]" -a - channels
+    fi
+  }
+
+  # list channels of a given session (-s, --session) for the given
+  # domains (-k, -u, -j, -l, -p) for the given channel (-c, --channel)
+  # for the given status (all, true, false)
+  _list_sdc_events_with_status() {
+    local wanted_status="$1"
+
+    # check MI support
+    _check_mi_support || return 1
+
+    # make sure we have a session name
+    session="$(_session_name_from_opts)"
+
+    if [[ -z $session ]]; then
+      _message 'no session chosen'
+      return 1
+    fi
+
+    # get domain
+    local domain="$(_domain_from_opts)"
+
+    if [[ $domain = x ]]; then
+      _message 'no domain chosen'
+      return 1
+    fi
+
+    # check for running root session daemon before listing
+    # kernel events
+    if [[ $domain = k ]] && (( ! $root_sessiond_running )); then
+      _message 'root session daemon is not running'
+      return 1
+    fi
+
+    # get channel
+    local channel=''
+
+    if [[ $domain = k || $domain = u ]]; then
+      # agent domains do not have associated channel
+      channel="$(_channel_name_from_opts)"
+    fi
+
+    local -a events
+    _append_sdc_events "$session" "$domain" "$channel" "$wanted_status"
+
+    # adjective
+    local adjective
+
+    case $wanted_status in
+      all) adjective='available';;
+      true) adjective='enabled';;
+      false) adjective='disabled';;
+    esac
+
+    if (( ${#events} == 0 )); then
+      _message "no $adjective events found for chosen session/domain/channel"
+      return 1
+    fi
+
+    local expl
+    local descr="$adjective event for chosen session/domain/channel"
+    _description values expl "$descr"
+    _sequence compadd "$expl[@]" -a - events
+  }
+
+  # list available session files
+  _list_sessions_files() {
+    # base search directories
+    local -a search_dirs
+    search_dirs=(~"/.lttng/sessions" "/etc/lttng/sessions")
+
+    # append argument of -i to search directories
+    if [[ -n ${opt_args[-i]} ]]; then
+      search_dirs+=(${opt_args[-i]})
+    fi
+
+    # append argument of --input-path to search directories
+    if [[ -n ${opt_args[--input-path]} ]]; then
+      search_dirs+=("${opt_args[--input-path]}")
+    fi
+
+    # find *.lttng files
+    local -a files
+
+    for dir in $search_dirs; do
+      if [[ ! -d $dir ]]; then
+        continue
+      fi
+
+      files+=("$dir/"*.lttng(:r:t))
+    done
+
+    compadd "$@" -a - files
+  }
+
+  # list context types for the given domains
+  _list_d_context_types() {
+    # check MI support
+    _check_mi_support || return 1
+
+    local -a ust_context_types
+    ust_context_types=(
+      'ip'
+      'procname'
+      'pthread_id'
+      'vpid'
+      'vtid'
+      'perf:thread:alignment-faults'
+      'perf:thread:branch-instructions'
+      'perf:thread:branch-load-misses'
+      'perf:thread:branch-loads'
+      'perf:thread:branch-misses'
+      'perf:thread:branches'
+      'perf:thread:bus-cycles'
+      'perf:thread:cache-misses'
+      'perf:thread:cache-references'
+      'perf:thread:context-switches'
+      'perf:thread:cpu-clock'
+      'perf:thread:cpu-cycles'
+      'perf:thread:cpu-migrations'
+      'perf:thread:cs'
+      'perf:thread:cycles'
+      'perf:thread:dTLB-load-misses'
+      'perf:thread:dTLB-loads'
+      'perf:thread:dTLB-prefetch-misses'
+      'perf:thread:dTLB-prefetches'
+      'perf:thread:dTLB-store-misses'
+      'perf:thread:dTLB-stores'
+      'perf:thread:emulation-faults'
+      'perf:thread:faults'
+      'perf:thread:idle-cycles-backend'
+      'perf:thread:idle-cycles-frontend'
+      'perf:thread:instructions'
+      'perf:thread:iTLB-load-misses'
+      'perf:thread:iTLB-loads'
+      'perf:thread:L1-dcache-load-misses'
+      'perf:thread:L1-dcache-loads'
+      'perf:thread:L1-dcache-prefetch-misses'
+      'perf:thread:L1-dcache-prefetches'
+      'perf:thread:L1-dcache-store-misses'
+      'perf:thread:L1-dcache-stores'
+      'perf:thread:L1-icache-load-misses'
+      'perf:thread:L1-icache-loads'
+      'perf:thread:L1-icache-prefetch-misses'
+      'perf:thread:L1-icache-prefetches'
+      'perf:thread:L1-icache-store-misses'
+      'perf:thread:L1-icache-stores'
+      'perf:thread:LLC-load-misses'
+      'perf:thread:LLC-loads'
+      'perf:thread:LLC-prefetch-misses'
+      'perf:thread:LLC-prefetches'
+      'perf:thread:LLC-store-misses'
+      'perf:thread:LLC-stores'
+      'perf:thread:major-faults'
+      'perf:thread:migrations'
+      'perf:thread:minor-faults'
+      'perf:thread:page-fault'
+      'perf:thread:stalled-cycles-backend'
+      'perf:thread:stalled-cycles-frontend'
+      'perf:thread:task-clock'
+    )
+
+    local -a kernel_context_types
+    kernel_context_types=(
+      'hostname'
+      'nice'
+      'pid'
+      'ppid'
+      'prio'
+      'procname'
+      'tid'
+      'vpid'
+      'vppid'
+      'vtid'
+      'perf:cpu:alignment-faults'
+      'perf:cpu:branch-instructions'
+      'perf:cpu:branch-load-misses'
+      'perf:cpu:branch-loads'
+      'perf:cpu:branch-misses'
+      'perf:cpu:branches'
+      'perf:cpu:bus-cycles'
+      'perf:cpu:cache-misses'
+      'perf:cpu:cache-references'
+      'perf:cpu:context-switches'
+      'perf:cpu:cpu-clock'
+      'perf:cpu:cpu-cycles'
+      'perf:cpu:cpu-migrations'
+      'perf:cpu:cs'
+      'perf:cpu:cycles'
+      'perf:cpu:dTLB-load-misses'
+      'perf:cpu:dTLB-loads'
+      'perf:cpu:dTLB-prefetch-misses'
+      'perf:cpu:dTLB-prefetches'
+      'perf:cpu:dTLB-store-misses'
+      'perf:cpu:dTLB-stores'
+      'perf:cpu:emulation-faults'
+      'perf:cpu:faults'
+      'perf:cpu:idle-cycles-backend'
+      'perf:cpu:idle-cycles-frontend'
+      'perf:cpu:instructions'
+      'perf:cpu:iTLB-load-misses'
+      'perf:cpu:iTLB-loads'
+      'perf:cpu:L1-dcache-load-misses'
+      'perf:cpu:L1-dcache-loads'
+      'perf:cpu:L1-dcache-prefetch-misses'
+      'perf:cpu:L1-dcache-prefetches'
+      'perf:cpu:L1-dcache-store-misses'
+      'perf:cpu:L1-dcache-stores'
+      'perf:cpu:L1-icache-load-misses'
+      'perf:cpu:L1-icache-loads'
+      'perf:cpu:L1-icache-prefetch-misses'
+      'perf:cpu:L1-icache-prefetches'
+      'perf:cpu:L1-icache-store-misses'
+      'perf:cpu:L1-icache-stores'
+      'perf:cpu:LLC-load-misses'
+      'perf:cpu:LLC-loads'
+      'perf:cpu:LLC-prefetch-misses'
+      'perf:cpu:LLC-prefetches'
+      'perf:cpu:LLC-store-misses'
+      'perf:cpu:LLC-stores'
+      'perf:cpu:major-faults'
+      'perf:cpu:migrations'
+      'perf:cpu:minor-faults'
+      'perf:cpu:page-fault'
+      'perf:cpu:stalled-cycles-backend'
+      'perf:cpu:stalled-cycles-frontend'
+      'perf:cpu:task-clock'
+    )
+
+    # get chosen domain
+    local domain="$(_domain_from_opts)"
+
+    if [[ $domain = x ]]; then
+      _message 'no domain chosen'
+      return 1
+    fi
+
+    local -a context_types
+
+    if [[ $domain = 'k' ]]; then
+      context_types+=($kernel_context_types)
+    elif [[ $domain = 'u' ]]; then
+      context_types+=($ust_context_types)
+    fi
+
+    # TODO: remove context types already present in -t options
+
+    if (( ${#context_types} == 0 )); then
+      _message 'no available context types for chosen domain'
+      return 1
+    fi
+
+    compadd "$@" -a - context_types
+  }
+
+  # list log levels for the given domains
+  _list_d_log_levels() {
+    # check MI support
+    _check_mi_support || return 1
+
+    local -a ust_log_levels
+    ust_log_levels=(
+      'TRACE_EMERG'
+      'TRACE_ALERT'
+      'TRACE_CRIT'
+      'TRACE_ERR'
+      'TRACE_WARNING'
+      'TRACE_NOTICE'
+      'TRACE_INFO'
+      'TRACE_DEBUG_SYSTEM'
+      'TRACE_DEBUG_PROGRAM'
+      'TRACE_DEBUG_PROCESS'
+      'TRACE_DEBUG_MODULE'
+      'TRACE_DEBUG_UNIT'
+      'TRACE_DEBUG_FUNCTION'
+      'TRACE_DEBUG_LINE'
+      'TRACE_DEBUG'
+    )
+
+    local -a jul_log_levels
+    jul_log_levels=(
+      'JUL_OFF'
+      'JUL_SEVERE'
+      'JUL_WARNING'
+      'JUL_INFO'
+      'JUL_CONFIG'
+      'JUL_FINE'
+      'JUL_FINER'
+      'JUL_FINEST'
+      'JUL_ALL'
+    )
+
+    local -a log4j_log_levels
+    log4j_log_levels=(
+      'LOG4J_OFF'
+      'LOG4J_FATAL'
+      'LOG4J_ERROR'
+      'LOG4J_WARN'
+      'LOG4J_INFO'
+      'LOG4J_DEBUG'
+      'LOG4J_TRACE'
+      'LOG4J_ALL'
+    )
+
+    local -a python_log_levels
+    python_log_levels=(
+      'PYTHON_CRITICAL'
+      'PYTHON_ERROR'
+      'PYTHON_WARNING'
+      'PYTHON_INFO'
+      'PYTHON_DEBUG'
+      'PYTHON_NOTSET'
+    )
+
+    # get chosen domain
+    local domain="$(_domain_from_opts)"
+
+    if [[ $domain = x ]]; then
+      _message 'no domain chosen'
+      return 1
+    fi
+
+    local -a log_levels
+
+    if [[ $domain = 'u' ]]; then
+      log_levels+=($ust_log_levels)
+    elif [[ $domain = 'j' ]]; then
+      log_levels+=($jul_log_levels)
+    elif [[ $domain = 'l' ]]; then
+      log_levels+=($log4j_log_levels)
+    elif [[ $domain = 'p' ]]; then
+      log_levels+=($python_log_levels)
+    fi
+
+    if (( ${#log_levels} == 0 )); then
+      _message 'no available log levels for chosen domain'
+      return 1
+    fi
+
+    local expl
+    compadd "$@" -a - log_levels
+  }
+
+  # lttng minor version
+  _lttng_minor_version() {
+    local version
+
+    version="$(lttng --version)"
+    if [[ $version =~ '2\.([[:digit:]]+)' ]]; then
+      echo -n $match[1]
+    else
+      echo -n 0
+    fi
+  }
+
+  # lttng commands
+  _describe_commands() {
+    local -a commands
+
+    # v2.5+ commands
+    commands=(
+      'add-context:add context to channels'
+      'calibrate:quantify LTTng overhead'
+      'create:create a tracing session'
+      'destroy:destroy a tracing session'
+      'disable-channel:disable channels'
+      'disable-event:disable events'
+      'enable-channel:add or enable channels'
+      'enable-event:add or enable events'
+      'list:list tracing sessions, domains, channels, and events'
+      'set-session:set current tracing session'
+      'snapshot:take snapshots'
+      'start:start tracing'
+      'stop:stop tracing'
+      'version:show version information'
+      'view:launch trace viewer'
+    )
+
+    # add v2.6+ commands
+    if (( $minor_version >= 6 )); then
+      commands+=(
+        'load:load tracing sessions from files'
+        'save:save tracing sessions to files'
+      )
+    fi
+
+    # add v2.7+ commands
+    if (( $minor_version >= 7 )); then
+      commands+=(
+        'track:track specific system resources'
+        'untrack:untrack specific system resources'
+      )
+    fi
+
+    # add v2.8+ commands
+    if (( $minor_version >= 8 )); then
+      commands+=(
+        "status:show current tracing session's details"
+      )
+    fi
+
+    _describe -t commands 'command' commands
+  }
+
+  # lttng snapshot commands
+  _describe_snapshot_commands() {
+    local -a commands
+
+    commands=(
+      'add-output:setup and add a snapshot output'
+      'del-output:delete a snapshot output'
+      'list-output:list current outputs'
+      'record:take a snapshot of tracing session buffers'
+    )
+
+    _describe -t commands 'snapshot command' commands
+  }
+
+  # session daemon processes
+  _sessiond_ps() {
+    ps aux | grep '[l]ttng-sessiond'
+  }
+
+  # get minor version
+  local minor_version
+  minor_version="$(_lttng_minor_version)"
+
+  # quit now if version < 2.5
+  if (( $minor_version < 5 )); then
+    _message 'completion is not supported for this version of lttng'
+    return 1
+  fi
+
+  # session daemon is running
+  local sessiond_running=0 root_sessiond_running=0
+  _sessiond_ps &> /dev/null
+
+  if (( $? == 0 )); then
+    sessiond_running=1
+  fi
+
+  _sessiond_ps | grep '[r]oot' &> /dev/null
+
+  if (( $? == 0 )); then
+    root_sessiond_running=1
+  fi
+
+  # help option
+  local -a opt_help
+  opt_help=(
+    '(- : *)'{-h,--help}'[show help]'
+  )
+
+  # kernel or user space domain options (mutex)
+  local -a opt_k_or_u
+  local opt_kernel_ust='-k --kernel -u --userspace'
+  opt_k_or_u=(
+    "($opt_kernel_ust)"{-k,--kernel}'[apply to kernel domain]'
+    "($opt_kernel_ust)"{-u,--userspace}'[apply to user space domain]'
+  )
+
+  # all domains options (for event commands)
+  local -a opt_all_domains
+  local opt_ust_domains='-u --userspace -j --jul'
+
+  # log4j domain is an lttng v2.6 feature
+  if (( $minor_version >= 6 )); then
+    opt_ust_domains="$opt_ust_domains -l --log4j"
+  fi
+
+  # Python domain is an lttng v2.7 feature
+  if (( $minor_version >= 7 )); then
+    opt_ust_domains="$opt_ust_domains -p --python"
+  fi
+
+  local opt_domains="-k --kernel $opt_ust_domains"
+  local opt_kernel_event_types='--probe --function --syscall'
+  local opt_ust_only='-x --exclude --loglevel --loglevel-only'
+  opt_all_domains=(
+    "($opt_domains $opt_kernel_event_types)"{-u,--userspace}'[apply to userspace domain]'
+    "($opt_domains $opt_kernel_event_types)"{-j,--jul}'[apply to java.util.logging (JUL) domain]'
+  )
+
+  # kernel filtering is an lttng v2.7 feature
+  if (( $minor_version < 7 )); then
+    opt_all_domains+=("($opt_domains $opt_ust_only -f --filter)"{-k,--kernel}'[apply to kernel domain]')
+  else
+    opt_all_domains+=("($opt_domains $opt_ust_only)"{-k,--kernel}'[apply to kernel domain]')
+  fi
+
+  # log4j domain is an lttng v2.6 feature
+  if (( $minor_version >= 6 )); then
+    opt_all_domains+=("($opt_domains $opt_kernel_event_types)"{-l,--log4j}'[apply to log4j domain]')
+  fi
+
+  # Python domain is an lttng v2.7 feature
+  if (( $minor_version >= 7 )); then
+    opt_all_domains+=("($opt_domains $opt_kernel_event_types)"{-p,--python}'[apply to Python domain]')
+  fi
+
+  # session options
+  local -a opt_session_all opt_session_active opt_session_inactive
+  local opt_session_descr='apply to specified tracing session'
+  local opt_session_msg='tracing session name'
+  local session_opt='-s --session'
+  opt_session_all=(
+    "($session_opt)"{-s,--session}"[$opt_session_descr]:$opt_session_msg:{_list_sessions_with_status all}"
+  )
+  opt_session_inactive=(
+    "($session_opt)"{-s,--session}"[$opt_session_descr]:$opt_session_msg:{_list_sessions_with_status false}"
+  )
+  opt_session_active=(
+    "($session_opt)"{-s,--session}"[$opt_session_descr]:$opt_session_msg:{_list_sessions_with_status true}"
+  )
+
+  # general options
+  local -a general_opts
+
+  general_opts=(
+    '(-v -vv -vvv --verbose -q --quiet)'{-v,-vv,-vvv,--verbose}'[increase verbosity]'
+    '(-V --version)'{-V,--version}'[show version]'
+    '(-q --quiet --verbose -v -vv -vvv)'{-q,--quiet}'[quiet mode]'
+    '(-n --no-sessiond --sessiond-path)'{-n,--no-sessiond}'[do not spawn a session daemon]'
+    '(- : *)--list-commands[list available commands]'
+    '(--no-sessiond)--sessiond-path[session daemon path]:session daemon path:_files'
+    '--relayd-path[relay daemon path]:relay daemon path:_files'
+    '--group[tracing group name]:tracing group name:_groups'
+    $opt_help
+  )
+
+  # MI is an lttng v2.6 feature
+  if (( $minor_version >= 6 )); then
+    general_opts+=('(-m --mi)'{-m,--mi}'[machine interface type]:machine interface type:((xml\:XML))')
+  fi
+
+  _arguments -C -s -w : \
+    $general_opts \
+    '1: :_describe_commands' \
+    '*:: :->args' && ret=0
+
+  # check for a running session daemon before completing commands
+  # which require one
+  if [[ $state = args ]]; then
+    case ${words[1]} in
+      add-context|calibrate|destroy|disable-channel|disable-event|enable-channel|enable-event|list|load|save|snapshot|start|status|stop|track|untrack)
+        if (( ! $sessiond_running )); then
+          _message 'session daemon is not running'
+          return 1
+        fi
+        ;;
+    esac
+  fi
+
+  # handle command
+  if [[ $state = args ]]; then
+    # update current context to signify that we're in an lttng command
+    curcontext="${curcontext%:*:*}:lttng-cmd-$words[1]:"
+
+    # commands
+    case ${words[1]} in
+      add-context)
+        _arguments -C -s -w : \
+            $opt_k_or_u \
+            $opt_session_inactive \
+            '(-c --channel)'{-c,--channel}'[apply to specified channel]:channel:{_list_sd_channels_with_status all}' \
+            '*'{-t,--type}'[context type]:context type:_list_d_context_types' \
+            $opt_help && ret=0
+        ;;
+
+      calibrate)
+        _arguments -C -s -w : \
+            $opt_k_or_u \
+            '--function[dynamic function entry/return probe]' \
+            $opt_help && ret=0
+        ;;
+
+      create)
+        local -a opts
+        opts=(
+          '(-o --output --no-output)'{-o,--output}'[trace output path]:trace output path:_directories'
+          '(-o --output)--no-output[disable trace output]'
+          '(--live)--snapshot[snapshot mode]'
+          '(--snapshot)--live[live mode period]:: :_guard "[0-9]#" "period (µs)"'
+          '(-C --ctrl-url -D --data-url -U --set-url)'{-U,--set-url}'[trace data destination URL]:trace data destination URL: '
+          '(-C --ctrl-url -U --set-url)'{-C,--ctrl-url}'[control path URL]:control path URL: '
+          '(-D --data-url -U --set-url)'{-D,--data-url}'[trace data path URL]:trace data path URL: '
+          $opt_help
+        )
+
+        # shared memory path is an lttng v2.7 feature
+        if (( $minor_version >= 7 )); then
+          opts+=('--shm-path[path of shared memory holding buffers]:path:_directories')
+        fi
+
+        _arguments -C -s -w : \
+            $opts \
+            '1::tracing session name: ' && ret=0
+        ;;
+
+      destroy)
+        _arguments -C -s -w : \
+            '(-a --all :)'{-a,--all}'[destroy all tracing sessions]' \
+            $opt_help \
+            '(-a --all)1:: :{_list_sessions_with_status all}' && ret=0
+        ;;
+
+      disable-channel)
+        _arguments -C -s -w : \
+            $opt_k_or_u \
+            $opt_session_inactive \
+            $opt_help \
+            '1:: :{_list_sd_channels_with_status true 1}' && ret=0
+        ;;
+
+      disable-event)
+        _arguments -C -s -w : \
+            $opt_all_domains \
+            $opt_session_all \
+            '(-c --channel)'{-c,--channel}'[apply to specified channel]:channel name:{_list_sd_channels_with_status all}' \
+            '(-a --all-events)'{-a,--all}'[disable all events]' \
+            "($opt_ust_domains)--syscall[disable system call events]" \
+            $opt_help \
+            '1:: :{_list_sdc_events_with_status true}' && ret=0
+        ;;
+
+      enable-channel)
+        _arguments -C -s -w : \
+            '(-k --kernel -u --userspace --buffers-pid --buffers-uid)'{-k,--kernel}'[apply to kernel domain]' \
+            '(-k --kernel -u --userspace --buffers-global)'{-u,--userspace}'[apply to user space domain]' \
+            $opt_session_inactive \
+            '(--overwrite)--discard[discard events when buffers are full]' \
+            '(--discard)--overwrite[keep a fixed amount of the latest data]' \
+            '--subbuf-size[sub-buffer size]:sub-buffer size in bytes (accepts k/M/G suffixes; power of 2): ' \
+            '--num-subbuf[number of sub-buffers]:sub-buffer count (power of 2): ' \
+            '--switch-timer[switch timer period]:switch timer period (µs): ' \
+            '--read-timer[read timer period]:read timer period (µs): ' \
+            '(-k --kernel --buffers-global --buffers-pid)--buffers-uid[per-user buffering]' \
+            '(-k --kernel --buffers-global --buffers-uid)--buffers-pid[per-process buffering]' \
+            '(-u --userspace --buffers-pid --buffers-uid)--buffers-global[global buffering]' \
+            '(-C --tracefile-sise)'{-C,--tracefile-size}'[maximum size of each trace file]:maximum size of each trace file (bytes): ' \
+            '(-W --tracefile-count)'{-W,--tracefile-count}'[maximum number of trace files]:trace file count: ' \
+            $opt_help \
+            '1:: :{_list_sd_channels_with_status false 1}' && ret=0
+        ;;
+
+      enable-event)
+        local -a syscall_opts
+
+        # specific system call events are only available from lttng v2.6
+        if (( $minor_version < 6 )); then
+          syscall_opts=(
+            "(--probe --function --tracepoint $opt_ust_domains -)--syscall[system call event (use with --all)]"
+            '(-a --all --syscall)1:event:_list_available_events'
+          )
+        else
+          syscall_opts=(
+            "(--probe --function --tracepoint $opt_ust_domains)--syscall[system call event]"
+            '(-a --all)1:event:_list_available_events'
+          )
+        fi
+
+        local -a opt_filter
+
+        # kernel filtering is an lttng v2.7 feature
+        if (( $minor_version < 7 )); then
+          opt_filter=('(-f --filter -k --kernel)'{-f,--filter}'[filter expression]:filter expression: ')
+        else
+          opt_filter=('(-f --filter)'{-f,--filter}'[filter expression]:filter expression: ')
+        fi
+
+        _arguments -C -s -w : \
+            $opt_all_domains \
+            $opt_session_all \
+            '(-c --channel)'{-c,--channel}'[apply to specified channel]:channel name:{_list_sd_channels_with_status all}' \
+            "(--probe --function --syscall)--tracepoint[tracepoint event]" \
+            "(--tracepoint --function --syscall $opt_ust_domains)--probe[dynamic probe event]:probe address/symbol/symbol+offset: " \
+            "(--probe --tracepoint --syscall $opt_ust_domains)--function[dynamic function entry/return event]:function address/symbol/symbol+offset: " \
+            '(-a --all :)'{-a,--all}'[enable all events of given type]' \
+            '(-k --kernel --loglevel-only)--loglevel[log level range]:log level:_list_d_log_levels' \
+            '(-k --kernel --loglevel)--loglevel-only[specific log level]:log level:_list_d_log_levels' \
+            $opt_filter \
+            '(-x --exclude -k --kernel)'{-x,--exclude}'[exclusion list]:comma-separated exclusion list: ' \
+            $opt_help \
+            $syscall_opts && ret=0
+        ;;
+
+      list)
+        local -a domains_opts
+        domains_opts=(
+          '(-k --kernel -d --domain)'{-k,--kernel}'[apply to kernel domain]'
+          '(-u --userspace -d --domain)'{-u,--userspace}'[apply to user space domain]'
+          '(-j --jul -d --domain)'{-j,--jul}'[apply to java.util.logging (JUL) domain]'
+        )
+
+        if (( $minor_version >= 6 )); then
+          domains_opts+=('(-l --log4j -d --domain)'{-l,--log4j}'[apply to log4j domain]')
+        fi
+
+        if (( $minor_version >= 7 )); then
+          domains_opts+=('(-p --python -d --domain)'{-p,--python}'[apply to Python domain]')
+        fi
+
+        # TODO: list channels for specified session (for -c, --channel option)
+
+        _arguments -C -s -w : \
+            $domains_opts \
+            '--syscall[list system calls (use with --kernel)]' \
+            '(-f --fields)'{-f,--fields}'[list event fields]' \
+            '(-c --channel)'{-c,--channel}'[show details of channel]:channel name:{_list_sd_channels_with_status all}' \
+            '(-d --domain -k --kernel -u --userspace -j --jul -l --log4j -p --python)'{-d,--domain}'[list available domains]' \
+            $opt_help \
+            '1:: :{_list_sessions_with_status all}' && ret=0
+        ;;
+
+      load)
+        _arguments -C -s -w : \
+            '(-a --all :)'{-a,--all}'[load all tracing sessions]' \
+            '(-i --input-path)'{-i,--input-path}'[input path]:input path:_files' \
+            '(-f --force)'{-f,--force}'[overwrite existing tracing sessions]' \
+            $opt_help \
+            '(-a --all)1::tracing session file:_list_sessions_files' && ret=0
+        ;;
+
+      save)
+        _arguments -C -s -w : \
+            '(-a --all :)'{-a,--all}'[save all tracing sessions]' \
+            '(-o --output-path)'{-o,--output-path}'[output directory path]:output directory path:_directories' \
+            '(-f --force)'{-f,--force}'[overwrite existing session files]' \
+            $opt_help \
+            '(-a --all)1:: :{_list_sessions_with_status all}' && ret=0
+        ;;
+
+      set-session)
+        _arguments -C -s -w : \
+            $opt_help \
+            '1: :{_list_sessions_with_status all 1}' && ret=0
+        ;;
+
+      snapshot)
+        _arguments -C -s -w : \
+          $opt_help \
+          '1: :_describe_snapshot_commands' \
+          '*:: :->snapshot-args' && ret=0
+
+          if [[ $state = 'snapshot-args' ]]; then
+            case ${words[1]} in
+              add-output|record)
+                _arguments -C -s -w : \
+                    '(-m --max-size)'{-m,--max-size}'[snapshot maximum size]:maximum snapshot size (accepts k/M/G suffixes): ' \
+                    $opt_session_all \
+                    '(-n --name)'{-n,--name}'[output name]:output name: ' \
+                    '(-C --ctrl-url :)'{-C,--ctrl-url}'[control path URL]:control path URL: ' \
+                    '(-D --data-url :)'{-D,--data-url}'[trace data path URL]:trace data path URL: ' \
+                    $opt_help \
+                    '(-C --ctrl-url -D --data-url)1::trace data URL: ' && ret=0
+                ;;
+
+              del-output)
+                _arguments -C -s -w : \
+                    $opt_session_all \
+                    $opt_help \
+                    '1::output name: ' && ret=0
+                ;;
+
+              list-output)
+                _arguments -C -s -w : \
+                    $opt_session_all \
+                    $opt_help && ret=0
+                ;;
+
+              *)
+                _message "unknown snapshot command \"${words[1]}\""
+                ;;
+            esac
+          fi
+        ;;
+
+      start)
+        _arguments -C -s -w : \
+            $opt_help \
+            '1:: :{_list_sessions_with_status false}' && ret=0
+        ;;
+
+      status|version)
+        _arguments -C -s -w : \
+            $opt_help && ret=0
+        ;;
+
+      stop)
+        _arguments -C -s -w : \
+            '(-n --no-wait)'{-n,--no-wait}'[do not wait for data availability]' \
+            $opt_help \
+            '1:: :{_list_sessions_with_status true}' && ret=0
+        ;;
+
+      track|untrack)
+        _arguments -C -s -w : \
+            $opt_k_or_u \
+            $opt_session_all \
+            '(-a --all)'{-a,--all}"[${words[1]} all resources]" \
+            '(-p --pid)'{-p,--pid}'[process ID tracker]:: :_sequence _pids' \
+            $opt_help && ret=0
+        ;;
+
+      view)
+        _arguments -C -s -w : \
+            '(-e --viewer)'{-e,--viewer}'[viewer path and options]:trace path:_files' \
+            '(-t --trace-path)'{-t,--trace-path}'[trace path]:trace path:_directories' \
+            $opt_help \
+            '1:: :{_list_sessions_with_status false}' && ret=0
+        ;;
+
+      *)
+        _message "unknown command \"${words[1]}\""
+        ;;
+    esac
+  fi
+
+  return ret
+}
+
+_lttng "$@"

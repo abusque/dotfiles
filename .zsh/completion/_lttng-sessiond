@@ -1,0 +1,88 @@
+#compdef lttng-sessiond
+#
+# Completion script for the lttng-sessiond command (see <http://lttng.org>).
+# Supports lttng-sessiond v2.5, v2.6, v2.7, and v2.8.
+#
+# Copyright (c) 2015 Philippe Proulx <eepp.ca>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+_lttng_sessiond() {
+  local context state state_descr line curcontext="$curcontext"
+  local ret=1
+  typeset -A opt_args
+
+  _list_probe_modules() {
+    local dir="/usr/lib/modules/$(uname -r)/extra"
+
+    if [[ ! -d $dir ]]; then
+      _message "cannot find directory \"$dir\""
+      return 1
+    fi
+
+    local -a probe_files
+    probe_files=("$dir"/**/lttng-probe-*.{ko,ko.gz}(:t))
+
+    if (( ${#probe_files} == 0 )); then
+      _message "no probe modules found in \"$dir\""
+      return 1
+    fi
+
+    probe_files=(${probe_files#lttng-probe-})
+    probe_files=(${probe_files%.gz})
+    probe_files=(${probe_files%.ko})
+
+    local expl
+    _sequence compadd "$@" -a - probe_files
+  }
+
+  _arguments -C -s -w : \
+      '(-c --client-sock)'{-c,--client-sock}'[path to client Unix socket]:client Unix socket path:_files' \
+      '(-a --apps-sock)'{-a,--apps-sock}'[path to apps Unix socket]:apps Unix socket path:_files' \
+      '--kconsumerd-err-sock[path to kernel consumer daemon error socket]:kernel consumer daemon error socket path:_files' \
+      '--kconsumerd-cmd-sock[path to kernel consumer daemon command socket]:kernel consumer daemon command socket path:_files' \
+      '--ustconsumerd32-err-sock[path to 32-bit UST consumer daemon error socket]:32-bit UST consumer daemon error socket path:_files' \
+      '--ustconsumerd32-cmd-sock[path to 32-bit UST consumer daemon command socket]:32-bit UST consumer daemon command socket path:_files' \
+      '--ustconsumerd64-err-sock[path to 64-bit UST consumer daemon error socket]:64-bit UST consumer daemon error socket path:_files' \
+      '--ustconsumerd64-cmd-sock[path to 64-bit UST consumer daemon command socket]:64-bit UST consumer daemon command socket path:_files' \
+      '--consumerd32-path[path to 32-bit UST consumer daemon]:32-bit UST consumer daemon path:_files' \
+      '--consumerd32-libdir[path to directory containing 32-bit UST consumer daemon libraries]:32-bit UST consumer daemon libraries directory path:_directories' \
+      '--consumerd64-path[path to 64-bit UST consumer daemon]:64-bit UST consumer daemon path:_files' \
+      '--consumerd64-libdir[path to directory containing 64-bit UST consumer daemon libraries]:64-bit UST consumer daemon libraries directory path:_directories' \
+      '(-d --daemonize -b --background)'{-d,--daemonize}'[start as daemon]' \
+      '(-b --background -d --daemonize)'{-b,--background}'[start as daemon, keep console open]' \
+      '(-g --group)'{-g,--group}'[tracing group name]:tracing group name:_groups' \
+      '(-V --version)'{-V,--version}'[show version]' \
+      '(-S --sig-parent)'{-S,--sig-parent}'[send SIGUSR1 to parent process when ready]' \
+      '(-q --quiet -v --verbose)'{-q,--quiet}'[quiet mode]' \
+      '(-v --verbose -q --quiet)'{-v,--verbose}'[increase verbosity]' \
+      '(-p --pidfile)'{-p,--pidfile}'[path to PID file]:_files' \
+      "--verbose-consumer[increase consumer daemon's verbosity]" \
+      '--no-kernel[disable kernel tracer]' \
+      '--agent-tcp-port[agent registration TCP port]:agent registration TCP port: ' \
+      '(-f --config)'{-f,--config}'[path to configuration file]:configuration file path:_files' \
+      '(-l --load)'{-l,--load}'[path to directory containing session configurations files]:session configurations directory path:_directories' \
+      '--kmod-probes[kernel probe modules to load]:kernel probe module:_list_probe_modules' \
+      '--extra-kmod-probes[extra kernel probe modules to load]:kernel probe module:_list_probe_modules' \
+      '(- : *)'{-h,--help}'[show help]' && ret=0
+
+  return ret
+}
+
+_lttng_sessiond "$@"

@@ -1,0 +1,47 @@
+#compdef lttng-relayd
+#
+# Completion script for the lttng-relayd command (see <http://lttng.org>).
+# Supports lttng-relayd v2.5, v2.6, v2.7, and v2.8.
+#
+# Copyright (c) 2015 Philippe Proulx <eepp.ca>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+_lttng_relayd() {
+  local context state state_descr line curcontext="$curcontext"
+  local ret=1
+  typeset -A opt_args
+
+  _arguments -C -s -w : \
+      '(-d --daemonize -b --background)'{-d,--daemonize}'[start as daemon]' \
+      '(-b --background -d --daemonize)'{-b,--background}'[start as daemon, keep console open]' \
+      '(-C --control-port)'{-C,--control-port}'[control port URL]:control port URL: ' \
+      '(-D --data-port)'{-D,--data-port}'[data port URL]:data port URL: ' \
+      '(-L --live-port)'{-L,--live-port}'[live port URL]:live port URL: ' \
+      '(-o --output)'{-o,--output}'[trace output path]:trace output path:_directories' \
+      '(-v --verbose)'{-v,--verbose}'[increase verbosity]' \
+      '(-g --group)'{-g,--group}'[tracing group name]:tracing group name:_groups' \
+      '(-f --config)'{-f,--config}'[path to configuration file]:configuration file path:_files' \
+      '(-V --version)'{-V,--version}'[show version]' \
+      '(- : *)'{-h,--help}'[show help]' && ret=0
+
+  return ret
+}
+
+_lttng_relayd "$@"
