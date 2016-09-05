@@ -1,0 +1,21 @@
+startup_message off
+set bargravity se
+
+set padding 0 20 0 0
+set font "Terminus-12"
+
+exec /usr/bin/rpws init 4 -k
+
+bind c exec urxvt
+bind e exec emacs
+bind f exec chromium
+bind v exec vlc
+bind i sselect 1
+bind o sselect 0
+bind p sselect 2
+bind a exec slock
+bind d exec transmission-qt
+bind l focusright
+bind h focusleft
+
+bind m exec togglexkbmap
