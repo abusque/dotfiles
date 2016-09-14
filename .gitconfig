@@ -15,7 +15,7 @@
         co = checkout
         cp = cherry-pick
         rb = rebase
-        rbia = rebase -i --autosquash
+        rbi = rebase -i
         st = status
         lppg = log --graph --pretty=format:'%Cred%h%Creset %an: %s - %Creset %C(yellow)%d%Creset %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
         discard = stash --keep-index -u
@@ -36,3 +36,5 @@
         excludesfile = ~/.gitignore_global
 [log]
         follow = true
+[rebase]
+	autosquash = true
