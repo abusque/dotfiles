@@ -90,6 +90,8 @@
 (add-to-list 'auto-mode-alist '("\\.twig$" . web-mode))
 (setq web-mode-enable-auto-pairing nil)
 
+;; irfc-mode
+(add-to-list 'auto-mode-alist '("rfc[0-9]+\\.txt" . irfc-mode))
 
 ;;; Ido
 (ido-mode t)
