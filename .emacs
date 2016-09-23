@@ -77,7 +77,7 @@
   (setq indent-tabs-mode nil
         tab-width 2
         c-basic-offset 4
-        flycheck-phpcs-standard "~/pillr/higgs/config/pillr_ruleset.xml")
+        flycheck-phpcs-standard "~/pillr/higgs/docs/CodingStyle.xml")
   (lambda ()
     (c-set-offset 'case-label '+)))
 (add-hook 'php-mode-hook 'php-pillr-hook)
