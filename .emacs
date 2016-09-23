@@ -85,7 +85,10 @@
 ;; web-mode
 (require 'web-mode)
 (setq web-mode-engines-alist '(("underscorejs" . "\\.template.html\\'")))
+(add-to-list 'auto-mode-alist '("\\.css$" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.scss$" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.twig$" . web-mode))
+(setq web-mode-enable-auto-pairing nil)
 
 
 ;;; Ido
