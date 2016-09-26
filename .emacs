@@ -99,12 +99,6 @@
 (setq ido-enable-flex-matching t)
 
 
-;;; abbrev-mode
-(setq-default abbrev-mode t)
-(quietly-read-abbrev-file abbrev-file-name)
-(setq save-abbrevs t)
-
-
 ;;; Backup and temp files
 
 ;; Place backups/auto-saves in
