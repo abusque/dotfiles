@@ -1,22 +1,33 @@
-# Lines configured by zsh-newuser-install
+# .zshrc - Z shell configuration
+#
+# By Antoine Busque <antoine@abusque.com>
+
+# History settings
 HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
-setopt autocd beep nomatch
+
+# Global options
+setopt nomatch
 unsetopt appendhistory extendedglob notify
+
+# Key bindings
+## Emacs bindings
 bindkey -e
-# End of lines configured by zsh-newuser-install
-# The following lines were added by compinstall
+## Delete key
+bindkey    "^[[3~"          delete-char
+bindkey    "^[3;5~"         delete-char
+
+# Prompt
 autoload -U promptinit
 promptinit
-# End of lines added by compinstall
+prompt walters
 
-# custom completion
+# Completion
 fpath=(~/.zsh/completion $fpath)
 autoload -Uz compinit
 compinit
 
-# some nice completion styles
 zstyle ':completion:*' menu select=2
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*::::' completer _expand _complete _ignored _approximate
@@ -33,86 +44,37 @@ zstyle ':completion:*:*:killall:*' menu yes select
 zstyle ':completion:*:killall:*' force-list always
 zstyle ':completion:*:(options|commands)' list-colors '=(#b)*(-- *)=0=36'
 
-prompt walters
+# Exports
 export EDITOR=emacs
 export BROWSER=chromium
 export TERM=xterm
+## Disable font anti-aliasing
 export FT2_SUBPIXEL_HINTING=0
+## VSync Config
+export __GL_SYNC_TO_VBLANK=1
+export __GL_SYNC_DISPLAY_DEVICE=DVI-I-2
+export VDPAU_NVIDIA_SYNC_DISPLAY_DEVICE=DVI-I-2
+
+# Aliases
+## Utilities
 alias rm='rm -I'
 alias ls='ls --quoting=literal --color=auto'
 alias grep='grep --color=auto'
 alias ll='ls -lh --group-directories-first'
 alias diff='colordiff -u'
-# Aliases to use color when piping to less
+## Color and paging
+alias less='less -R'
 alias grepc='grep --color=always'
 alias agc='ag --color'
-alias less='less -R'
-# Misc aliases
+## Miscellaneous
 alias bw='eboxbw PJ138'
 alias ut='find . -name "*.[cChH]" | etags -'
 
-# This is to make the delete key behave as expected
-bindkey    "^[[3~"          delete-char
-bindkey    "^[3;5~"         delete-char
 
-# ruby gems in PATH
+# PATH
+## Ruby gems
 if which ruby >/dev/null && which gem >/dev/null; then
     PATH="$(ruby -rubygems -e 'puts Gem.user_dir')/bin:$PATH"
 fi
-
-# composer in PATH
+# Composer packages
 PATH=$PATH:~/.config/composer/vendor/bin
-
-###-begin-npm-completion-###
-#
-# npm command completion script
-#
-# Installation: npm completion >> ~/.bashrc  (or ~/.zshrc)
-# Or, maybe: npm completion > /usr/local/etc/bash_completion.d/npm
-#
-
-COMP_WORDBREAKS=${COMP_WORDBREAKS/=/}
-COMP_WORDBREAKS=${COMP_WORDBREAKS/@/}
-export COMP_WORDBREAKS
-
-if type complete &>/dev/null; then
-  _npm_completion () {
-    local si="$IFS"
-    IFS=$'\n' COMPREPLY=($(COMP_CWORD="$COMP_CWORD" \
-                           COMP_LINE="$COMP_LINE" \
-                           COMP_POINT="$COMP_POINT" \
-                           npm completion -- "${COMP_WORDS[@]}" \
-                           2>/dev/null)) || return $?
-    IFS="$si"
-  }
-  complete -F _npm_completion npm
-elif type compdef &>/dev/null; then
-  _npm_completion() {
-    si=$IFS
-    compadd -- $(COMP_CWORD=$((CURRENT-1)) \
-                 COMP_LINE=$BUFFER \
-                 COMP_POINT=0 \
-                 npm completion -- "${words[@]}" \
-                 2>/dev/null)
-    IFS=$si
-  }
-  compdef _npm_completion npm
-elif type compctl &>/dev/null; then
-  _npm_completion () {
-    local cword line point words si
-    read -Ac words
-    read -cn cword
-    let cword-=1
-    read -l line
-    read -ln point
-    si="$IFS"
-    IFS=$'\n' reply=($(COMP_CWORD="$cword" \
-                       COMP_LINE="$line" \
-                       COMP_POINT="$point" \
-                       npm completion -- "${words[@]}" \
-                       2>/dev/null)) || return $?
-    IFS="$si"
-  }
-  compctl -K _npm_completion npm
-fi
-###-end-npm-completion-###
