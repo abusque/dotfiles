@@ -4,8 +4,6 @@
 (setq custom-file "~/.emacs-custom.el")
 (load custom-file)
 
-(add-to-list 'load-path "/home/abusque/.emacs.d/autopair/")
-
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
