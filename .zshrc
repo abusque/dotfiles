@@ -41,7 +41,7 @@ export FT2_SUBPIXEL_HINTING=0
 alias rm='rm -I'
 alias ls='ls --quoting=literal --color=auto'
 alias grep='grep --color=auto'
-alias ll='ls -lh'
+alias ll='ls -lh --group-directories-first'
 alias diff='colordiff -u'
 # Aliases to use color when piping to less
 alias grepc='grep --color=always'
