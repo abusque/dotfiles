@@ -49,7 +49,6 @@ alias agc='ag --color'
 alias less='less -R'
 # Misc aliases
 alias bw='eboxbw PJ138'
-alias diablo2='WINEARCH=win32 wine /home/abusque/.wine/drive_c/Diablo\ II/Game.exe'
 alias ut='find . -name "*.[cChH]" | etags -'
 
 # This is to make the delete key behave as expected
