@@ -50,10 +50,11 @@ export BROWSER=chromium
 export TERM=xterm
 ## Disable font anti-aliasing
 export FT2_SUBPIXEL_HINTING=0
-## VSync Config
+ifdef(`LAPTOP', `',
+`## VSync Config
 export __GL_SYNC_TO_VBLANK=1
 export __GL_SYNC_DISPLAY_DEVICE=DVI-I-2
-export VDPAU_NVIDIA_SYNC_DISPLAY_DEVICE=DVI-I-2
+export VDPAU_NVIDIA_SYNC_DISPLAY_DEVICE=DVI-I-2')
 
 # Aliases
 ## Utilities

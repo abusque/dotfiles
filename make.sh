@@ -7,8 +7,8 @@ BASEDIR=$(cd "$(dirname "$0")"; pwd -P)
 SRCDIR="$BASEDIR/src"
 DISTDIR="$BASEDIR/dist"
 INSTALLDIR=$HOME
-SOURCES="emacs emacs-custom.el gitconfig gitignore_global Xresources zshrc zsh"
-DYNAMIC_SOURCES="ratpoisonrc xinitrc xmobarrc"
+SOURCES="emacs emacs-custom.el gitconfig gitignore_global Xresources zsh"
+DYNAMIC_SOURCES="ratpoisonrc xinitrc xmobarrc zshrc"
 
 task_make () {
     if [ ! -z "$LAPTOP" ]; then
