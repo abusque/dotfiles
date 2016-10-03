@@ -7,8 +7,7 @@ BASEDIR=$(cd "$(dirname "$0")"; pwd -P)
 SRCDIR="$BASEDIR/src"
 DISTDIR="$BASEDIR/dist"
 INSTALLDIR=$HOME
-SOURCES="emacs emacs-custom.el gitconfig gitignore_global Xresources zsh"
-DYNAMIC_SOURCES="ratpoisonrc xinitrc xmobarrc zshrc"
+SOURCES="emacs emacs-custom.el gitconfig gitignore_global ratpoisonrc xinitrc xmobarrc Xresources zshrc"
 
 task_make () {
     if [ ! -z "$LAPTOP" ]; then
@@ -21,12 +20,10 @@ task_make () {
     mkdir -p $DISTDIR
 
     for file in $SOURCES; do
-        cp -r "$SRCDIR/$file" "$DISTDIR/$file"
-    done;
-
-    for file in $DYNAMIC_SOURCES; do
         m4 $M4FLAGS "$SRCDIR/$file" > "$DISTDIR/$file"
     done;
+
+    cp -r "$SRCDIR/zsh" "$DISTDIR/.zsh"
 }
 
 task_clean () {
