@@ -23,7 +23,7 @@ task_make () {
         m4 $M4FLAGS "$SRCDIR/$file" > "$DISTDIR/$file"
     done;
 
-    cp -r "$SRCDIR/zsh" "$DISTDIR/.zsh"
+    cp -r "$SRCDIR/zsh" "$DISTDIR/"
 }
 
 task_clean () {
