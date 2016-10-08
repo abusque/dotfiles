@@ -14,5 +14,5 @@ Config { font = "xft:Terminus-12"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %battery% | %cpu% | %memory% | %wlp3s0% }{ %uname% | %CYUL% | <fc=#ee9a00>%date%</fc>"
+       , template = "ifdef(`LAPTOP', ` %battery% |') %cpu% | %memory% | %wlp3s0% }{ %uname% | %CYUL% | <fc=#ee9a00>%date%</fc>"
        }
