@@ -11,6 +11,7 @@
         br = branch
         ci = commit -s
         cim = commit -sm
+        cia = commit --amend --no-edit
         cam = commit -sam
         co = checkout
         cp = cherry-pick
