@@ -59,9 +59,9 @@ export VDPAU_NVIDIA_SYNC_DISPLAY_DEVICE=DVI-I-2')
 # Aliases
 ## Utilities
 alias rm='rm -I'
-alias ls='ls --quoting=literal --color=auto'
+alias ls='ls --quoting=literal --color=auto  --group-directories-first'
 alias grep='grep --color=auto'
-alias ll='ls -lh --group-directories-first'
+alias ll='ls -lh'
 alias diff='colordiff -u'
 ## Color and paging
 alias less='less -R'
