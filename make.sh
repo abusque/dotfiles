@@ -37,12 +37,27 @@ task_install () {
     done
 }
 
+task_diff () {
+    for file in $DISTDIR/*; do
+        if [ -d $file ]; then
+            # Don't diff directories
+            continue
+        fi
+
+        name=$(basename $file)
+        colordiff -u $file $INSTALLDIR/.$name
+    done
+}
+
 case $1 in
     clean)
         task_clean
         ;;
     install)
         task_install
+        ;;
+    diff)
+        task_diff
         ;;
     *)
         task_make
