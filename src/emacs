@@ -98,7 +98,7 @@
 
 ;;; Backup and temp files
 
-;; Place backups/auto-saves in
+;; Place backups/auto-saves in /tmp
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
