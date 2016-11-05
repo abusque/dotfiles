@@ -38,7 +38,7 @@ def run(file_path):
         print('Failed to open {}. Aborting'.format(file_path), file=sys.stderr)
         sys.exit(1)
 
-    print(output)
+    print(output, end='')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
