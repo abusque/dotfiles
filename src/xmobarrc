@@ -9,10 +9,11 @@ Config { font = "xft:Terminus-12"
                     , Run Memory ["-t","Mem: <usedratio>%"] 10
                     , Run Com "uname" ["-s","-r"] "" 36000
                     , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
-                    ifdef(`LAPTOP',
-                    `, Run Battery ["-t"," <left>%","-L","25","-H","75","-h","green","-n","orange","-l","red"] 10')
+                    @ifdef "LAPTOP"
+                    """, Run Battery ["-t"," <left>%","-L","25","-H","75","-h","green","-n","orange","-l","red"] 10"""
+                    @endif
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "ifdef(`LAPTOP', ` %battery% |') %cpu% | %memory% | %wlp3s0% }{ %uname% | %CYUL% | <fc=#ee9a00>%date%</fc>"
+       , template = "@ifdef "LAPTOP" "%battery% |" @endif %cpu% | %memory% | %wlp3s0% }{ %uname% | %CYUL% | <fc=#ee9a00>%date%</fc>"
        }

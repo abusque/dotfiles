@@ -6,21 +6,19 @@
 BASEDIR=$(cd "$(dirname "$0")"; pwd -P)
 SRCDIR="$BASEDIR/src"
 DISTDIR="$BASEDIR/dist"
+APP="$BASEDIR/utils/app.py"
 INSTALLDIR=$HOME
 SOURCES="emacs emacs-custom.el gitconfig gitignore_global ratpoisonrc xinitrc xmobarrc Xresources zshrc"
 
 task_make () {
     if [ ! -z "$LAPTOP" ]; then
         SOURCES="$SOURCES xbindkeysrc"
-        M4FLAGS="-DLAPTOP"
-    else
-        M4FLAGS=''
     fi
 
     mkdir -p $DISTDIR
 
     for file in $SOURCES; do
-        m4 $M4FLAGS "$SRCDIR/$file" > "$DISTDIR/$file"
+        $APP "$SRCDIR/$file" > "$DISTDIR/$file"
     done;
 
     cp -r "$SRCDIR/zsh" "$DISTDIR/"
