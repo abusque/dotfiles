@@ -43,7 +43,7 @@ task_diff () {
         fi
 
         name=$(basename $file)
-        colordiff -u $file $INSTALLDIR/.$name
+        colordiff -u $INSTALLDIR/.$name $file
     done
 }
 
