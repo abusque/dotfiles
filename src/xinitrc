@@ -9,6 +9,8 @@ DISPLAY_STATUS=$(xrandr)
 
 if (echo $DISPLAY_STATUS | grep -E "$EXT1 disconnected.*$EXT2 disconnected"); then
     xrandr --output $IN --auto --output $EXT1 --off --output $EXT2 --off
+elif (echo $DISPLAY_STATUS | grep -E "$EXT1 disconnected"); then
+    xrandr --output $IN --pos 0x1152 --output $EXT2 --primary --pos 1366x840
 elif (echo $DISPLAY_STATUS | grep -E "$EXT2 disconnected"); then
     xrandr --output $IN --pos 0x1152 --output $EXT1 --primary --pos 1366x840
 else
