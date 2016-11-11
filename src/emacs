@@ -70,14 +70,14 @@
 (setq js-indent-level 2)
 
 ;; PHP mode
-(defun php-pillr-hook ()
-  "PHP Pillr config"
+(defun pillr-php-hook ()
+  "Pillr PHP config"
   (setq indent-tabs-mode nil
         tab-width 2
         c-basic-offset 4
-        flycheck-phpcs-standard "~/pillr/higgs/docs/CodingStyle.xml")
+        flycheck-phpcs-standard "~/pillr/higgs/.lint/phpcs-config-pillr.xml")
     (c-set-offset 'case-label '+))
-(add-hook 'php-mode-hook 'php-pillr-hook)
+(add-hook 'php-mode-hook 'pillr-php-hook)
 
 ;; web-mode
 (require 'web-mode)
