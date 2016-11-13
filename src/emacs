@@ -84,6 +84,7 @@
 (defun pillr-web-hook ()
   "Pillr web-mode config"
   (setq web-mode-enable-auto-pairing nil
+        web-mode-markup-indent-offset 2
         web-mode-css-indent-offset 2))
 (setq web-mode-engines-alist '(("underscorejs" . "\\.template.html\\'")))
 (add-to-list 'auto-mode-alist '("\\.css$" . web-mode))
