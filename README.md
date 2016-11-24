@@ -40,3 +40,38 @@ To produce a diff for every one of these files.
 
 For convenience, a `clean` target is also provided, which removes the
 `dist` directory.
+
+## Appendix A: Preprocessor Syntax
+
+The currently supported syntax for the preprocessor is as follows:
+
+```
+@ifdef "MY_VARIABLE"
+"Value if defined"
+"Value if not defined"
+@endif
+```
+
+The "else" clause is optional. "MY_VARIABLE" must correspond to an
+environment variable name. Whether that environment variable is
+defined or not when the preprocessor is run determines which value to
+substitute in the generated file.
+
+For multi-line values, or for including double quotes without escaping
+within one of the values, triple double quotes syntax is supported, as
+in Python. For instance:
+
+```
+@ifdef "VAR"
+"""A "pretty long"
+replacement value, with
+line breaks inside it."""
+@endif
+```
+
+## Appendix B: Feature Wishlist
+
+* Use a lexer/parser for the preprocessor (currently implemented with
+  an unwieldy regex).
+* Add support for `@ifndef` keyword.
+* Don't quote variable names.
