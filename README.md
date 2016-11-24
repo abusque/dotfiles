@@ -13,8 +13,8 @@ Although I try to keep the configurations of the laptop and the
 desktop as close to each other as possible to minimise headaches, they
 will always diverge in some points.
 
-I have currently settled on m4 macros to handle this. This is subject
-to change in the future.
+This is currently handled by a preprocessor script, located
+at [utils/app.py](utils/app.py).
 
 To generate the default set of dotfiles, run:
 
@@ -29,6 +29,14 @@ The generated files will be located in `dist/`. To install these files
 into your home directory, run:
 
     ./make.sh install
+
+If you want to verify the changes that installing the newly generated
+files would cause, before overwriting any of your current files, you
+may run:
+
+    ./make.sh diff
+
+To produce a diff for every one of these files.
 
 For convenience, a `clean` target is also provided, which removes the
 `dist` directory.
