@@ -12,4 +12,4 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (csv-mode adoc-mode irfc php-mode yaml-mode web-mode use-package nginx-mode markdown-mode json-mode html5-schema haskell-mode flycheck autopair ag))))
+    (groovy-mode csv-mode adoc-mode irfc php-mode yaml-mode web-mode use-package nginx-mode markdown-mode json-mode html5-schema haskell-mode flycheck autopair ag))))
