@@ -71,6 +71,9 @@ alias agc='ag --color'
 ## Miscellaneous
 alias bw='eboxbw PJ138'
 alias ut='find . -name "*.[cChH]" | etags -'
+@ifdef "LAPTOP" ""
+"alias xsteam='startx /home/abusque/.steamxinitrc --'"
+@endif
 
 
 # PATH
