@@ -29,6 +29,8 @@
   :ensure t
   :init (global-flycheck-mode))
 
+;; Browse-URL
+(setq browse-url-browser-function 'browse-url-chromium)
 
 ;;; Display
 (setq inhibit-splash-screen t
