@@ -16,8 +16,8 @@ elif (echo $DISPLAY_STATUS | grep -E "$EXT2 disconnected"); then
 else
     xrandr --output $IN --pos 0x1152 --output $EXT1 --primary --pos 1366x840 --output $EXT2 --pos 3286x0 --rotate left
 fi"""
-"""# Sets the 1440p monitor as primary display
-xrandr --output DVI-I-2 --primary
+"""# Sets the 1440p monitor as primary display, align bottom edges
+xrandr --output DVI-I-2 --primary --output DVI-I-1 --pos 2560x390
 # Load nvidia settings
 nvidia-settings --load-config-only &"""
 @endif
