@@ -29,6 +29,8 @@
   :ensure t
   :init (global-flycheck-mode))
 
+(setq-default flycheck-disabled-checkers '(php-phpmd))
+
 ;; Browse-URL
 (setq browse-url-browser-function 'browse-url-chromium)
 
