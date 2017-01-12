@@ -30,6 +30,7 @@
   :init (global-flycheck-mode))
 
 (setq-default flycheck-disabled-checkers '(php-phpmd))
+(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
 
 ;; Browse-URL
 (setq browse-url-browser-function 'browse-url-chromium)
