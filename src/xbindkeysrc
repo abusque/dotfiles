@@ -4,7 +4,7 @@
         XF86AudioLowerVolume
 "amixer -c 0 sset Master mute"
         XF86AudioMute
-"xbacklight -inc 10"
+"tp-backlight --inc 10"
         XF86MonBrightnessUp
-"xbacklight -dec 10"
+"tp-backlight --dec 10"
         XF86MonBrightnessDown
