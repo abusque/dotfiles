@@ -75,19 +75,19 @@
 (setq js-indent-level 2)
 
 ;; PHP mode
-(defun pillr-php-hook ()
-  "Pillr PHP config"
+(defun abusque-php-hook ()
+  "My default PHP config."
   (setq indent-tabs-mode nil
         tab-width 2
         c-basic-offset 4
-        flycheck-phpcs-standard "~/pillr/higgs/.lint/phpcs-config-pillr.xml")
+        flycheck-phpcs-standard "~/devsea/backend/.lint/phpcs-config-devsea.xml")
     (c-set-offset 'case-label '+))
-(add-hook 'php-mode-hook 'pillr-php-hook)
+(add-hook 'php-mode-hook 'abusque-php-hook)
 
 ;; web-mode
 (require 'web-mode)
-(defun pillr-web-hook ()
-  "Pillr web-mode config"
+(defun abusque-web-hook ()
+  "My default web-mode config."
   (setq web-mode-enable-auto-pairing nil
         web-mode-markup-indent-offset 2
         web-mode-css-indent-offset 2))
@@ -96,7 +96,7 @@
 (add-to-list 'auto-mode-alist '("\\.scss$" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.twig$" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.mustache$" . web-mode))
-(add-hook 'web-mode-hook 'pillr-web-hook)
+(add-hook 'web-mode-hook 'abusque-web-hook)
 
 ;; irfc-mode
 (add-to-list 'auto-mode-alist '("rfc[0-9]+\\.txt" . irfc-mode))
