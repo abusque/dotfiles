@@ -38,4 +38,4 @@
 [log]
         follow = true
 [rebase]
-	autosquash = true
+        autosquash = true
