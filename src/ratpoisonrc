@@ -10,11 +10,7 @@ bind c exec urxvt
 bind e exec emacs
 bind f exec chromium
 bind o sselect 0
-@ifdef "LAPTOP"
-"""bind i sselect 1
-bind p sselect 2"""
-"bind p sselect 1"
-@endif
+bind p sselect 1
 bind a exec slock
 bind l focusright
 bind h focusleft
