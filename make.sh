@@ -8,7 +8,7 @@ SRCDIR="$BASEDIR/src"
 DISTDIR="$BASEDIR/dist"
 APP="$BASEDIR/utils/app.py"
 INSTALLDIR=$HOME
-SOURCES="emacs emacs-custom.el gitconfig gitignore_global ratpoisonrc screenrc xinitrc xmobarrc Xresources zshrc"
+SOURCES="emacs emacs-custom.el gitconfig gitignore_global ratpoisonrc screenrc xinitrc xmobarrc Xresources zshrc zsh"
 
 task_make () {
     if [ ! -z "$LAPTOP" ]; then
@@ -17,11 +17,22 @@ task_make () {
 
     mkdir -p $DISTDIR
 
-    for file in $SOURCES; do
-        $APP "$SRCDIR/$file" > "$DISTDIR/$file"
-    done;
+    for filename in $SOURCES; do
+        file="$SRCDIR/$filename"
 
-    cp -r "$SRCDIR/zsh" "$DISTDIR/"
+        if [ ! -e "$file" ]; then
+            # No file in SRCDIR
+            continue
+        fi
+
+        if [ -d "$file" ]; then
+            cp -r "$file" "$DISTDIR/"
+        else
+            name=$(basename "$file")
+            $APP "$file" > "$DISTDIR/$name"
+        fi
+
+    done;
 }
 
 task_clean () {
