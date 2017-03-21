@@ -41,20 +41,31 @@ task_clean () {
 
 task_install () {
     for file in $DISTDIR/*; do
-        name=$(basename $file)
-        cp -r $file $INSTALLDIR/.$name
+        if [ ! -e "$file" ]; then
+            # No file in DISTDIR
+            continue
+        fi
+
+        name=$(basename "$file")
+        cp -r "$file" "$INSTALLDIR/.$name"
     done
 }
 
 task_diff () {
     for file in $DISTDIR/*; do
-        if [ -d $file ]; then
-            # Don't diff directories
+        if [ ! -e "$file" ]; then
+            # No file in DISTDIR
             continue
         fi
 
-        name=$(basename $file)
-        colordiff -u $INSTALLDIR/.$name $file
+        if [ -d "$file" ]; then
+            # Don't diff directories
+            # TODO diff files inside directory
+            continue
+        fi
+
+        name=$(basename "$file")
+        colordiff -u "$INSTALLDIR/.$name" "$file"
     done
 }
 
