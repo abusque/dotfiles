@@ -9,7 +9,7 @@ DISPLAY_STATUS=$(xrandr)
 if (echo $DISPLAY_STATUS | grep -E "$EXT1 disconnected.*"); then
     xrandr --output $IN --auto --output $EXT1 --off
 else
-    xrandr --output eDP-1 --primary --mode 1920x1080 --pos 0x120  --output $EXT1 --mode 1920x1200 --pos 1920x0
+    xrandr --output $IN --mode 1920x1080 --pos 0x120  --output $EXT1 --primary --mode 1920x1200 --pos 1920x0
 fi"""
 """# Sets the 1440p monitor as primary display, align bottom edges
 xrandr --output DVI-I-2 --primary --output DVI-I-1 --pos 2560x390
