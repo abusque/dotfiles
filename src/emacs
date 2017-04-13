@@ -72,7 +72,7 @@
 (setq c-basic-offset 8)
 
 ;; Javascript mode
-(setq js-indent-level 2)
+(setq js-indent-level 4)
 
 ;; PHP mode
 (defun abusque-php-hook ()
