@@ -83,3 +83,5 @@ if which ruby >/dev/null && which gem >/dev/null; then
 fi
 # Composer packages
 PATH=$PATH:~/.config/composer/vendor/bin
+# Arcanist
+PATH=$PATH:~/.arcanist/arcanist/bin
