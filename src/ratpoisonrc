@@ -15,5 +15,6 @@ bind a exec slock
 bind l focusright
 bind h focusleft
 bind m exec togglexkbmap
-bind d exec keepassxc
-bind y exec tomate
+bind x exec keepassxc
+bind d exec tomate
+bind y exec shh
