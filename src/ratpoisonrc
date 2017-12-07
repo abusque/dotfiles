@@ -9,12 +9,8 @@ exec /usr/bin/rpws init 4 -k
 bind c exec urxvt
 bind e exec emacs
 bind f exec chromium
-@ifdef "LAPTOP"
-"""bind o sselect 1
-bind p sselect 0"""
-"""bind o sselect 0
-bind p sselect 1"""
-@endif
+bind o sselect 0
+bind p sselect 1
 bind a exec slock
 bind l focusright
 bind h focusleft
