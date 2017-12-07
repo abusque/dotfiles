@@ -4,7 +4,6 @@
         signingkey = 7E261FE9
 [color]
         ui = auto
-        ui = true
 [push]
         default = current
 [alias]
