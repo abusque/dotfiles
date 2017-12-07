@@ -1,4 +1,4 @@
-startup_message off
+set startupmessage 0
 set bargravity se
 
 set padding 0 20 0 0
