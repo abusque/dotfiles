@@ -85,6 +85,12 @@
     (c-set-offset 'case-label '+))
 (add-hook 'php-mode-hook 'abusque-php-hook)
 
+;; Python mode
+(defun abusque-python-hook ()
+  "My default Python config."
+  (setq flycheck-checker 'python-pylint))
+(add-hook 'python-mode-hook 'abusque-python-hook)
+
 ;; web-mode
 (require 'web-mode)
 (defun abusque-web-hook ()
