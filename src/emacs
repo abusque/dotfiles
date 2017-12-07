@@ -67,9 +67,10 @@
 ;;; Programming
 
 ;; C mode
-(add-hook 'c-mode-common-hook '(lambda () (setq indent-tabs-mode t)))
+(dtrt-indent-mode t)
+(setq dtrt-indent-active-mode-line-info nil)
 (setq c-default-style "linux")
-(setq c-basic-offset 8)
+(setq c-basic-offset 4)
 
 ;; Javascript mode
 (setq js-indent-level 4)
