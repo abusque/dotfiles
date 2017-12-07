@@ -81,9 +81,9 @@ alias ut='find . -name "*.[cChH]" | etags -'
 if which ruby >/dev/null && which gem >/dev/null; then
     PATH="$(ruby -rubygems -e 'puts Gem.user_dir')/bin:$PATH"
 fi
-# Composer packages
+## Composer packages
 PATH=$PATH:~/.config/composer/vendor/bin
-# Stack packages
+## Stack packages
 PATH=$PATH:~/.local/bin/
-# Arcanist
+## Arcanist
 PATH=$PATH:~/.arcanist/arcanist/bin
