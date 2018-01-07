@@ -77,10 +77,6 @@ alias ut='find . -name "*.[cChH]" | etags -'
 
 
 # PATH
-## Ruby gems
-if which ruby >/dev/null && which gem >/dev/null; then
-    PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
-fi
 ## Composer packages
 PATH=$PATH:~/.config/composer/vendor/bin
 ## Stack packages
