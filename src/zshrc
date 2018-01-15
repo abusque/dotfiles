@@ -6,6 +6,7 @@
 HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
+HISTORY_IGNORE="(cd|ls|pwd|exit|shutdown|reboot|jrnl)"
 
 # Global options
 setopt nomatch
