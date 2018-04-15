@@ -80,9 +80,8 @@
 (defun abusque-php-hook ()
   "My default PHP config."
   (setq indent-tabs-mode nil
-        tab-width 2
         c-basic-offset 4
-        flycheck-phpcs-standard "~/devsea/backend/.lint/phpcs-config-devsea.xml")
+        flycheck-phpcs-standard "~/.phpcs-config.xml")
     (c-set-offset 'case-label '+))
 (add-hook 'php-mode-hook 'abusque-php-hook)
 
