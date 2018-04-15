@@ -81,5 +81,3 @@ alias ut='find . -name "*.[cChH]" | etags -'
 PATH=$PATH:~/.config/composer/vendor/bin
 ## Stack packages
 PATH=$PATH:~/.local/bin/
-## Arcanist
-PATH=$PATH:~/.arcanist/arcanist/bin
