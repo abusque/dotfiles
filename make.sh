@@ -8,7 +8,7 @@ SRCDIR="$BASEDIR/src"
 DISTDIR="$BASEDIR/dist"
 APP="$BASEDIR/utils/app.py"
 INSTALLDIR=$HOME
-SOURCES="emacs emacs-custom.el gitconfig gitconfig-element gitignore_global moc ratpoisonrc screenrc xinitrc xmobarrc Xresources zshrc zsh"
+SOURCES="emacs emacs-custom.el gitconfig gitconfig-element gitignore_global ignore moc ratpoisonrc screenrc xinitrc xmobarrc Xresources zshrc zsh"
 
 task_make () {
     if [ ! -z "$LAPTOP" ]; then
