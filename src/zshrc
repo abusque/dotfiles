@@ -9,7 +9,7 @@ SAVEHIST=1000
 
 # Global options
 setopt nomatch complete_aliases
-unsetopt appendhistory extendedglob notify
+unsetopt extendedglob notify
 
 # Key bindings
 ## Emacs bindings
