@@ -81,3 +81,7 @@ alias ut='find . -name "*.[cChH]" | etags -'
 PATH=$PATH:~/.config/composer/vendor/bin
 ## Stack packages
 PATH=$PATH:~/.local/bin/
+## pyenv
+PATH=~/.pyenv/bin:$PATH
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
