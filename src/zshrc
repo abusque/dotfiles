@@ -64,6 +64,7 @@ alias ls='ls --quoting=literal --color=auto --group-directories-first'
 alias grep='grep --color=auto'
 alias ll='ls -lh'
 alias diff='colordiff -u'
+alias ag='ag --hidden --path-to-ignore ~/.ignore'
 ## Color and paging
 alias less='less -R'
 alias grepc='grep --color=always'
@@ -71,6 +72,8 @@ alias agc='ag --color'
 ## Miscellaneous
 alias bw='eboxbw PJ138'
 alias ut='find . -name "*.[cChH]" | etags -'
+alias docker='dockeb'
+alias octave-gui='octave --force-gui'
 @ifdef "LAPTOP" ""
 "alias xsteam='startx /home/abusque/.steamxinitrc --'"
 @endif
