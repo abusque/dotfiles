@@ -32,6 +32,12 @@
 (setq-default flycheck-disabled-checkers '(php-phpmd))
 (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
 
+;; EditorConfig
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
+
 ;; Browse-URL
 (setq browse-url-browser-function 'browse-url-chromium)
 
