@@ -4,8 +4,11 @@
 
 # History settings
 HISTFILE=~/.histfile
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=5000
+SAVEHIST=5000
+HISTORY_IGNORE="(ls*|ll*|true|cd*|git st|git pull|git lppg|git stash*|qng *)"
+setopt HIST_IGNORE_ALL_DUPS
+setopt APPEND_HISTORY
 
 # Global options
 setopt nomatch complete_aliases
