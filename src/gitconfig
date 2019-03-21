@@ -49,3 +49,7 @@
         gpgsign = true
 [submodule]
         recurse = true
+[includeIf "gitdir:~/element/"]
+        path = .gitconfig-element
+[includeIf "gitdir:~/remote-home/element/"]
+        path = .gitconfig-element
