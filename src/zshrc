@@ -8,7 +8,7 @@ HISTSIZE=1000
 SAVEHIST=1000
 
 # Global options
-setopt nomatch
+setopt nomatch complete_aliases
 unsetopt appendhistory extendedglob notify
 
 # Key bindings
