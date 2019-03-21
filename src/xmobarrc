@@ -1,4 +1,5 @@
 Config { font = "xft:Terminus-12"
+       , additionalFonts = ["xft:Symbola"]
        , bgColor = "black"
        , fgColor = "grey"
        , position = Top
@@ -12,8 +13,9 @@ Config { font = "xft:Terminus-12"
                     @ifdef "LAPTOP"
                     """, Run Battery ["-t"," <left>%","-L","25","-H","75","-h","green","-n","orange","-l","red"] 10"""
                     @endif
+                    , Run CommandReader "watch-tomate" "tomate"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "@ifdef "LAPTOP" "%battery% |" @endif %cpu% | %memory% | %dynnetwork% }{ %uname% | %CYUL% | <fc=#ee9a00>%date%</fc>"
+       , template = "@ifdef "LAPTOP" "%battery% |" @endif %cpu% | %memory% | %dynnetwork% }{ <fn=1>%tomate%</fn> | %uname% | %CYUL% | <fc=#ee9a00>%date%</fc>"
        }
