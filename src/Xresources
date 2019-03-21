@@ -2,7 +2,7 @@ URxvt*background:       black
 URxvt*foreground:       white
 URxvt*scrollBar:        false
 URxvt*tripleclickwords: true
-URxvt*font:             xft:Terminus:style=Regular:size=10
+URxvt*font:             xft:Terminus:style=Regular:size=10,xft:Symbola
 URxvt*perl-lib:         /usr/lib/urxvt/perl/
 URxvt*perl-ext-common:  default,matcher
 URxvt*matcher.button:   1
