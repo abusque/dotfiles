@@ -110,7 +110,14 @@
 (add-to-list 'auto-mode-alist '("\\.twig$" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.mustache$" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.jinja2$" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.html$" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.js$" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
 (add-hook 'web-mode-hook 'abusque-web-hook)
+(add-hook 'web-mode-hook
+          (lambda ()
+            (if (equal web-mode-content-type "javascript")
+                (web-mode-set-content-type "jsx"))))
 
 ;; irfc-mode
 (add-to-list 'auto-mode-alist '("rfc[0-9]+\\.txt" . irfc-mode))
