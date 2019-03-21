@@ -119,6 +119,10 @@
             (if (equal web-mode-content-type "javascript")
                 (web-mode-set-content-type "jsx"))))
 
+;; Pipfile
+(add-to-list 'auto-mode-alist '("Pipfile" . toml-mode))
+(add-to-list 'auto-mode-alist '("Pipfile.lock" . json-mode))
+
 ;; irfc-mode
 (add-to-list 'auto-mode-alist '("rfc[0-9]+\\.txt" . irfc-mode))
 
