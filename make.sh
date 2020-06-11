@@ -3,7 +3,7 @@
 # I should probably be doing this with (auto)make but I can't be
 # bothered right now, this is quicker to write.
 
-BASEDIR=$(cd "$(dirname "$0")"; pwd -P)
+BASEDIR=$(cd "$(dirname "$0")" || exit; pwd -P)
 SRCDIR="$BASEDIR/src"
 DISTDIR="$BASEDIR/dist"
 APP="$BASEDIR/utils/app.py"
@@ -11,11 +11,11 @@ INSTALLDIR=$HOME
 SOURCES="emacs emacs-custom.el gitconfig gitconfig-element gitignore_global ignore moc ratpoisonrc screenrc xinitrc xmobarrc Xresources zshrc zsh"
 
 task_make () {
-    if [ ! -z "$LAPTOP" ]; then
+    if [ -n "$LAPTOP" ]; then
         SOURCES="$SOURCES xbindkeysrc"
     fi
 
-    mkdir -p $DISTDIR
+    mkdir -p "$DISTDIR"
 
     for filename in $SOURCES; do
         file="$SRCDIR/$filename"
@@ -36,11 +36,11 @@ task_make () {
 }
 
 task_clean () {
-    rm -rf $DISTDIR
+    rm -rf "$DISTDIR"
 }
 
 task_install () {
-    for file in $DISTDIR/*; do
+    for file in "$DISTDIR"/*; do
         if [ ! -e "$file" ]; then
             # No file in DISTDIR
             continue
@@ -52,7 +52,7 @@ task_install () {
 }
 
 task_diff () {
-    for file in $DISTDIR/*; do
+    for file in "$DISTDIR"/*; do
         if [ ! -e "$file" ]; then
             # No file in DISTDIR
             continue
