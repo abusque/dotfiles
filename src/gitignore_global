@@ -1,3 +1,4 @@
 TAGS
 .ignore
 .python-version
+.venv
