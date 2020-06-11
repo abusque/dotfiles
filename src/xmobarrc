@@ -4,17 +4,18 @@ Config { font = "xft:Terminus-12"
        , fgColor = "grey"
        , position = Top
        , lowerOnStart = True
-       , commands = [ Run Weather "CYUL" ["-t","<tempC>C","-L","18","-H","25","--normal","green","--high","red","--low","lightblue"] 36000
-                    , Run DynNetwork ["-L","0","-H","32","--normal","green","--high","red"] 10
-                    , Run Cpu ["-L","3","-H","50","--normal","green","--high","red"] 10
-                    , Run Memory ["-t","Mem: <usedratio>%"] 10
-                    , Run Com "uname" ["-s","-r"] "" 36000
-                    , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
-                    @ifdef "LAPTOP"
-                    """, Run Battery ["-t"," <left>%","-L","25","-H","75","-h","green","-n","orange","-l","red"] 10"""
-                    @endif
-                    , Run CommandReader "watch-tomate" "tomate"
-                    ]
+       , commands = [
+           Run Weather "CYUL" ["-t","<tempC>C","-L","18","-H","25","--normal","green","--high","red","--low","lightblue"] 36000
+           , Run DynNetwork ["-L","0","-H","32","--normal","green","--high","red"] 10
+           , Run Cpu ["-L","3","-H","50","--normal","green","--high","red"] 10
+           , Run Memory ["-t","Mem: <usedratio>%"] 10
+           , Run Com "uname" ["-s","-r"] "" 36000
+           , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
+           @ifdef "LAPTOP"
+           """, Run Battery ["-t"," <left>%","-L","25","-H","75","-h","green","-n","orange","-l","red"] 10"""
+           @endif
+           , Run CommandReader "watch-tomate" "tomate"
+           ]
        , sepChar = "%"
        , alignSep = "}{"
        , template = "@ifdef "LAPTOP" "%battery% |" @endif %cpu% | %memory% | %dynnetwork% }{ <fn=1>%tomate%</fn> | %uname% | %CYUL% | <fc=#ee9a00>%date%</fc>"
