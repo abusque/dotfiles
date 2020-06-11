@@ -161,3 +161,4 @@
 
 (setq x-select-enable-clipboard t)
 (put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
