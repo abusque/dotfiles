@@ -13,4 +13,4 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (editorconfig go-mode cmake-mode toml-mode dockerfile-mode dtrt-indent geben flycheck-rust rust-mode groovy-mode csv-mode adoc-mode irfc php-mode yaml-mode web-mode use-package nginx-mode markdown-mode json-mode html5-schema haskell-mode flycheck autopair ag))))
+    (editorconfig go-mode cmake-mode toml-mode dockerfile-mode dtrt-indent geben flycheck-rust rust-mode csv-mode adoc-mode irfc php-mode yaml-mode web-mode use-package nginx-mode markdown-mode json-mode html5-schema haskell-mode flycheck autopair ag))))
