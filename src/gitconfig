@@ -1,7 +1,6 @@
 [user]
         name = Antoine Busque
         email = antoinebusque@gmail.com
-        signingkey = 7E261FE9
 [color]
         ui = auto
 [push]
@@ -45,8 +44,6 @@
         enabled = true
 [pull]
         rebase = true
-[commit]
-        gpgsign = true
 [submodule]
         recurse = true
 [includeIf "gitdir:~/element/"]

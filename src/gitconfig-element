@@ -1,2 +1,5 @@
 [user]
         email = antoine.busque@elementai.com
+        signingkey = 6565393FA8A94D5A07178C64B31D94232E390E1A
+[commit]
+        gpgsign = true
