@@ -18,3 +18,7 @@ export VDPAU_NVIDIA_SYNC_DISPLAY_DEVICE=DVI-I-2"""
 ## pyenv
 PATH=~/.pyenv/bin:$PATH
 eval "$(pyenv init -)"
+## poetry
+PATH=~/.poetry/bin:$PATH
+## nvm
+source /usr/share/nvm/init-nvm.sh
