@@ -22,6 +22,8 @@
         d = diff
         ds = diff --staged
         changelog = log --pretty='%x09* %s'
+        delbranch = !sh -c \"git branch -d $1 && git push origin :$1\" -
+        relnotes = log --graph --pretty=format:'%Cred%h%Creset %an: %s' --abbrev-commit
 [sendemail]
         smtpencryption = tls
         smtpserver = smtp.gmail.com
@@ -47,6 +49,4 @@
 [submodule]
         recurse = true
 [includeIf "gitdir:~/element/"]
-        path = .gitconfig-element
-[includeIf "gitdir:~/remote-home/element/"]
         path = .gitconfig-element
