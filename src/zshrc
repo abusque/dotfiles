@@ -85,11 +85,6 @@ alias octave-gui='octave --force-gui'
 
 
 # PATH
-## Composer packages
-PATH=$PATH:~/.config/composer/vendor/bin
-## Stack packages
-PATH=$PATH:~/.local/bin/
 ## pyenv
 PATH=~/.pyenv/bin:$PATH
 eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
