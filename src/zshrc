@@ -46,6 +46,7 @@ zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#)*=29=34"
 zstyle ':completion:*:*:killall:*' menu yes select
 zstyle ':completion:*:killall:*' force-list always
 zstyle ':completion:*:(options|commands)' list-colors '=(#b)*(-- *)=0=36'
+zstyle ':completion:*' ignored-patterns 'dockeb'
 
 # Exports
 export EDITOR=emacs
