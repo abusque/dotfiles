@@ -22,3 +22,7 @@ eval "$(pyenv init -)"
 PATH=~/.poetry/bin:$PATH
 ## nvm
 source /usr/share/nvm/init-nvm.sh
+
+# Credentials
+
+source ~/.zcredentials
