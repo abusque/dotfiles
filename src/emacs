@@ -104,7 +104,8 @@
   "My default web-mode config."
   (setq web-mode-enable-auto-pairing nil
         web-mode-markup-indent-offset 2
-        web-mode-css-indent-offset 2))
+        web-mode-css-indent-offset 2
+        web-mode-code-indent-offset 2))
 (setq web-mode-engines-alist '(("underscorejs" . "\\.template.html\\'")))
 (add-to-list 'auto-mode-alist '("\\.css$" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.scss$" . web-mode))
@@ -117,14 +118,6 @@
 (add-to-list 'auto-mode-alist '("\\.ts$" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.tsx$" . web-mode))
 (add-hook 'web-mode-hook 'abusque-web-hook)
-(add-hook 'web-mode-hook
-          (lambda ()
-            (if (equal web-mode-content-type "javascript")
-                (web-mode-set-content-type "jsx"))))
-(add-hook 'web-mode-hook
-          (lambda ()
-            (if (equal web-mode-content-type "typescript")
-                (web-mode-set-content-type "tsx"))))
 
 ;; Pipfile
 (add-to-list 'auto-mode-alist '("Pipfile" . toml-mode))
