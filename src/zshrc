@@ -48,21 +48,6 @@ zstyle ':completion:*:killall:*' force-list always
 zstyle ':completion:*:(options|commands)' list-colors '=(#b)*(-- *)=0=36'
 zstyle ':completion:*' ignored-patterns 'dockeb'
 
-# Exports
-export EDITOR=emacs
-export BROWSER=chromium
-export TERM=xterm
-## Disable font anti-aliasing
-export FT2_SUBPIXEL_HINTING=0
-## GPG Agent
-export GPG_TTY=$(tty)
-@ifdef "LAPTOP" ""
-"""## VSync Config
-export __GL_SYNC_TO_VBLANK=1
-export __GL_SYNC_DISPLAY_DEVICE=DVI-I-2
-export VDPAU_NVIDIA_SYNC_DISPLAY_DEVICE=DVI-I-2"""
-@endif
-
 # Aliases
 ## Utilities
 alias rm='rm -I'
@@ -83,9 +68,3 @@ alias octave-gui='octave --force-gui'
 @ifdef "LAPTOP" ""
 "alias xsteam='startx /home/abusque/.steamxinitrc --'"
 @endif
-
-
-# PATH
-## pyenv
-PATH=~/.pyenv/bin:$PATH
-eval "$(pyenv init -)"
